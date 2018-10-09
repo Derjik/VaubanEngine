@@ -1,0 +1,17 @@
+# Resources
+*.ttf
+
+# Object modules
+*.o
+
+# Vim swap files
+*.swp
+
+# Visual studio project files
+Debug/
+Release/
+x64/
+.vs/
+*.user
+*.filters
+*.vcxproj
