@@ -43,6 +43,8 @@ class Window
 		/* Texture storage map */
 		std::map<std::string, Texture> _textures;
 
+		void applyRatioTypeSettings(void);
+		void updateCanvasFrame(SDL_Rect const & outerSurface);
 
 	public:
 		/* Full constructor */
@@ -95,6 +97,7 @@ class Window
 		Uint32 getId(void);
 		SDL_Window * getAddress(void);
 
+		void handleResize(void);
 };
 
 #endif // WINDOW_HPP_INCLUDED

@@ -27,6 +27,10 @@ void GameContext::handleEvent(SDL_Event const & event)
 		case SDL_MOUSEBUTTONUP:
 			handleMouseEvent(event);
 		break;
+
+		case SDL_WINDOWEVENT:
+			handleWindowEvent(event);
+		break;
 	}
 }
 
@@ -78,3 +82,24 @@ void GameContext::handleKeyboardEvent(SDL_Event const & event)
 
 void GameContext::handleMouseEvent(SDL_Event const & event)
 {}
+
+void GameContext::handleWindowEvent(SDL_Event const & event)
+{
+	switch (event.window.event)
+	{
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			SDL_Window * address = SDL_GetWindowFromID(event.window.windowID);
+			std::string windowName = _windowManager->getWindowNameByAddress(address);
+
+			Window & win = _windowManager->getByAddress(address);
+
+			SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+				"Window '%s' (ID: %d) changed size to %dx%d",
+				windowName.c_str(), win.getId(),
+				event.window.data1, event.window.data2);
+
+			win.handleResize();
+
+		break;
+	}
+}

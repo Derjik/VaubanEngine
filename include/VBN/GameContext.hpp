@@ -15,6 +15,8 @@ class GameContext
 				SDL_Event const & event);
 		virtual void handleGameControllerEvent(
 				SDL_Event const & event);
+		virtual void handleWindowEvent(
+				SDL_Event const & event);
 
 	public:
 		GameContext(std::shared_ptr<WindowManager> wm);

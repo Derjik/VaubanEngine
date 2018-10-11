@@ -51,6 +51,9 @@ Window::Window(std::string const & title,
 			+ std::string(SDL_GetError()) + "'");
 	}
 
+	/* Apply ratioType-specific settings */
+	applyRatioTypeSettings();
+
 	/* Introspect newly created context */
 	SDL_RendererInfo rendererInfo;
 	SDL_GetRendererInfo(_renderer.get(), &rendererInfo);
@@ -74,16 +77,88 @@ Window::Window(Window && other) :
 	_bitmapFontManager(std::move(other._bitmapFontManager))
 {}
 
+void Window::applyRatioTypeSettings(void)
+{
+	Uint32 windowFlags = SDL_GetWindowFlags(_window.get());
+
+	/* Windowed */
+	if ((windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == false)
+	{
+		switch (_ratioType)
+		{
+			case FIXED_RATIO_STRETCH:
+				SDL_RenderSetLogicalSize(
+					_renderer.get(),
+					_canvasWidth,
+					_canvasHeight);
+			break;
+			case FIXED_RATIO_FRAME:
+				SDL_RenderSetLogicalSize(_renderer.get(), 0, 0);
+
+				SDL_Rect windowSurface;
+				SDL_GetWindowSize(
+					_window.get(),
+					&windowSurface.w,
+					&windowSurface.h);
+				updateCanvasFrame(windowSurface);
+			break;
+			case DYNAMIC_RATIO:
+				SDL_RenderSetLogicalSize(_renderer.get(), 0, 0);
+			break;
+		}
+	}
+	/* Fullscreen */
+	else
+	{
+		switch (_ratioType)
+		{
+			case FIXED_RATIO_STRETCH:
+				SDL_RenderSetLogicalSize(
+					_renderer.get(),
+					_canvasWidth,
+					_canvasHeight);
+			break;
+			case FIXED_RATIO_FRAME:
+				SDL_RenderSetLogicalSize(_renderer.get(), 0, 0);
+
+				SDL_Rect desktopSurface;
+				SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(_window.get()),
+					&desktopSurface);
+				updateCanvasFrame(desktopSurface);
+			break;
+			case DYNAMIC_RATIO:
+				SDL_RenderSetLogicalSize(_renderer.get(), 0, 0);
+			break;
+		}
+	}
+}
+
+void Window::updateCanvasFrame(SDL_Rect const & outerSurface)
+{
+	if (_ratioType == FIXED_RATIO_FRAME)
+	{
+		int hShift = (outerSurface.w - _canvasWidth) / 2;
+		int vShift = (outerSurface.h - _canvasHeight) / 2;
+		SDL_Rect viewport{ hShift, vShift, _canvasWidth, _canvasHeight };
+		SDL_RenderSetViewport(_renderer.get(), &viewport);
+	}
+}
 
 void Window::toggleFullscreen(void)
 {
 	Uint32 currentFlags = SDL_GetWindowFlags(_window.get());
+	bool fullscreen = (currentFlags & SDL_WINDOW_FULLSCREEN_DESKTOP);
 
-	/* Window currently on fullscreen */
-	if((currentFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
+	if (fullscreen)
+	{
 		SDL_SetWindowFullscreen(_window.get(), 0);
-	else /* Window not on fullscreen */
+		applyRatioTypeSettings();
+	}
+	else
+	{
 		SDL_SetWindowFullscreen(_window.get(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+		applyRatioTypeSettings();
+	}
 }
 
 bool Window::addTextTexture(std::string const & textureName,
@@ -202,4 +277,9 @@ Uint32 Window::getId(void)
 SDL_Window * Window::getAddress(void)
 {
 	return _window.get();
+}
+
+void Window::handleResize(void)
+{
+	applyRatioTypeSettings();
 }
