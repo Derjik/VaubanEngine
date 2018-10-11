@@ -193,3 +193,13 @@ void SDLRendererDeleter::operator()(SDL_Renderer * renderer) const
 {
 	SDL_DestroyRenderer(renderer);
 }
+
+Uint32 Window::getId(void)
+{
+	return SDL_GetWindowID(_window.get());
+}
+
+SDL_Window * Window::getAddress(void)
+{
+	return _window.get();
+}

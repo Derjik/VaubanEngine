@@ -65,7 +65,7 @@ void GameContext::handleGameControllerEvent(SDL_Event const & event)
 void GameContext::handleKeyboardEvent(SDL_Event const & event)
 {
 	Uint32 keyEvType = event.key.type;
-	Window & main(_windowManager->get("mainWindow"));
+	Window & main(_windowManager->getByName("mainWindow"));
 
 	switch(event.key.keysym.sym)
 	{

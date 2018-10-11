@@ -92,6 +92,8 @@ class Window
 		float getBrightness(void) const;
 		int getCurrentDisplayIndex(void) const;
 		SDL_Renderer * getRenderer(void);
+		Uint32 getId(void);
+		SDL_Window * getAddress(void);
 
 };
 

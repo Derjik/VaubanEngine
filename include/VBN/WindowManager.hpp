@@ -11,6 +11,7 @@ class WindowManager
 {
 	private:
 		std::map<std::string, Window> _windows;
+		std::map<SDL_Window *, std::string> _labels;
 
 	public:
 		void add(
@@ -23,7 +24,9 @@ class WindowManager
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> & ttfManager);
 
-		Window & get(std::string const &);
+		Window & getByName(std::string const &);
+		Window & getByAddress(SDL_Window *);
+		std::string getWindowNameByAddress(SDL_Window *);
 		void remove(std::string const &);
 };
 
