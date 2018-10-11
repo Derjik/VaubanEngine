@@ -32,6 +32,7 @@ Engine::Engine(void) :
 						SDL_WINDOWPOS_CENTERED,
 						SDL_WINDOWPOS_CENTERED,
 						1600, 900,
+						RatioType::FIXED_RATIO_FRAME,
 						SDL_WINDOW_SHOWN,
 						SDL_RENDERER_ACCELERATED,
 						_trueTypeFontManager);

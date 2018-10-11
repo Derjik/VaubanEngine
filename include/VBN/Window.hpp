@@ -14,6 +14,13 @@ struct SDLWindowDeleter { void operator () (SDL_Window * window) const; };
 /* SDL_Renderer raw pointer deleter */
 struct SDLRendererDeleter { void operator () (SDL_Renderer * renderer) const; };
 
+enum RatioType
+{
+	FIXED_RATIO_FRAME,
+	FIXED_RATIO_STRETCH,
+	DYNAMIC_RATIO
+};
+
 // Forward declarations
 class TrueTypeFontManager;
 
@@ -22,6 +29,10 @@ class Window
 	private:
 		/* Encapsulated SDL_Window object */
 		std::unique_ptr<SDL_Window, SDLWindowDeleter> _window;
+		/* Type of aspect ratio */
+		RatioType _ratioType;
+		unsigned _canvasWidth;
+		unsigned _canvasHeight;
 
 		/* Encapsulated SDL_Renderer object */
 		std::unique_ptr<SDL_Renderer, SDLRendererDeleter> _renderer;
@@ -32,27 +43,13 @@ class Window
 		/* Texture storage map */
 		std::map<std::string, Texture> _textures;
 
+
 	public:
-		/* Default constructor */
-		Window(std::shared_ptr<TrueTypeFontManager> ttfManager);
-
-		/*** Intermediary constructors ***/
-		Window(std::string const & title,
-			std::shared_ptr<TrueTypeFontManager> ttfManager);
-		Window(std::string const & title,
-			int x, int y,
-			int width, int height,
-			std::shared_ptr<TrueTypeFontManager> ttfManager);
-		Window(std::string const & title,
-			int x, int y,
-			int width, int height,
-			Uint32 windowFlags,
-			std::shared_ptr<TrueTypeFontManager> ttfManager);
-
 		/* Full constructor */
 		Window(std::string const & title,
-			int x, int y,
-			int width, int height,
+			int xPosition, int yPosition,
+			int windowWidth, int windowHeight,
+			RatioType ratioType,
 			Uint32 windowFlags,
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> ttfManager);

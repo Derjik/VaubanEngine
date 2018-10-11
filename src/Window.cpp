@@ -3,52 +3,29 @@
 #include <VBN/BitmapFontManager.hpp>
 #include <SDL2/SDL_log.h>
 
-Window::Window(std::shared_ptr<TrueTypeFontManager> ttfManager) :
-	Window("SDL Window",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		1280, 720,
-		SDL_WINDOW_SHOWN,
-		ttfManager)
-{}
-
+/*
+ * Full constructor
+ */
 Window::Window(std::string const & title,
-	std::shared_ptr<TrueTypeFontManager> ttfManager) :
-	Window(title,
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		1280, 720,
-		SDL_WINDOW_SHOWN,
-		ttfManager)
-{}
-
-Window::Window(std::string const & title, int x, int y, int w, int h,
-	std::shared_ptr<TrueTypeFontManager> ttfManager) :
-	Window(title, x, y, w, h, SDL_WINDOW_SHOWN, ttfManager)
-{}
-
-Window::Window(std::string const & title,
-				int x, int y, int w, int h,
-				Uint32 windowFlags,
-				std::shared_ptr<TrueTypeFontManager> ttfManager) :
-						Window(title, x, y, w, h,
-								windowFlags,
-								SDL_RENDERER_ACCELERATED,
-								ttfManager)
-{}
-
-Window::Window(std::string const & title,
-	int x, int y, int width, int height,
+	int xPosition, int yPosition,
+	int windowWidth, int windowHeight,
+	RatioType ratioType,
 	Uint32 windowFlags,
 	Uint32 rendererFlags,
 	std::shared_ptr<TrueTypeFontManager> ttfManager) :
 	_window(nullptr),
+	_ratioType(ratioType),
+	_canvasWidth(windowWidth),
+	_canvasHeight(windowHeight),
 	_renderer(nullptr),
 	_bitmapFontManager(nullptr)
 {
 	/* Instantiate SDL Window */
 	_window = std::unique_ptr<SDL_Window, SDLWindowDeleter>(
-		SDL_CreateWindow(title.c_str(), x, y, width, height, windowFlags),
+		SDL_CreateWindow(title.c_str(),
+						xPosition, yPosition,
+						windowWidth, windowHeight,
+						windowFlags),
 		SDLWindowDeleter());
 	if(_window == nullptr)
 	{
@@ -89,6 +66,9 @@ Window::Window(std::string const & title,
 
 Window::Window(Window && other) :
 	_window(std::move(other._window)),
+	_ratioType(std::move(other._ratioType)),
+	_canvasWidth(std::move(other._canvasWidth)),
+	_canvasHeight(std::move(other._canvasHeight)),
 	_renderer(std::move(other._renderer)),
 	_textures(std::move(other._textures)),
 	_bitmapFontManager(std::move(other._bitmapFontManager))

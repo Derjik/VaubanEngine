@@ -7,6 +7,7 @@ void WindowManager::add(
 	std::string const & title,
 	int x, int y,
 	int w, int h,
+	RatioType ratioType,
 	Uint32 windowFlags,
 	Uint32 rendererFlags,
 	std::shared_ptr<TrueTypeFontManager> & ttfManager)
