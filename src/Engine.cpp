@@ -1,15 +1,15 @@
-#include <VBN/GameContextManager.hpp>
+#include <VBN/Engine.hpp>
 #include <numeric>
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_timer.h>
 
 #define MS_PER_FRAME_STACK_SIZE 40
 
-std::vector<std::shared_ptr<GameContext>> GameContextManager::_stack;
-std::deque<Uint32> GameContextManager::_msPerFrame(1, 1000);
-bool GameContextManager::_pop(false);
+std::vector<std::shared_ptr<GameContext>> Engine::_stack;
+std::deque<Uint32> Engine::_msPerFrame(1, 1000);
+bool Engine::_pop(false);
 
-void GameContextManager::run(void)
+void Engine::run(void)
 {
 	SDL_Event ev;
 
@@ -63,7 +63,7 @@ void GameContextManager::run(void)
 	}
 }
 
-Uint32 GameContextManager::getAverageMillisecondsPerFrame(void)
+Uint32 Engine::getAverageMillisecondsPerFrame(void)
 {
 	/* Compute the sum of all elapsed milliseconds during last frames */
 	Uint32 sum = std::accumulate(_msPerFrame.begin(),
@@ -74,17 +74,17 @@ Uint32 GameContextManager::getAverageMillisecondsPerFrame(void)
 	return sum / _msPerFrame.size();
 }
 
-Uint32 GameContextManager::getInstantMillisecondsPerFrame(void)
+Uint32 Engine::getInstantMillisecondsPerFrame(void)
 {
 	return _msPerFrame.front();
 }
 
-void GameContextManager::pop(void)
+void Engine::pop(void)
 {
 	_pop = true;
 }
 
-void GameContextManager::flush(void)
+void Engine::flush(void)
 {
 	if(_pop)
 	{
@@ -93,7 +93,7 @@ void GameContextManager::flush(void)
 	}
 }
 
-void GameContextManager::push(std::shared_ptr<GameContext> context)
+void Engine::push(std::shared_ptr<GameContext> context)
 {
 	_stack.push_back(context);
 }

@@ -6,7 +6,7 @@
 #include <deque>
 #include <VBN/GameContext.hpp>
 
-class GameContextManager
+class Engine
 {
 	private:
 		static std::vector<std::shared_ptr<GameContext>> _stack;
