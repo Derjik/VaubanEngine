@@ -1,32 +1,30 @@
 #ifndef GAME_CONTEXT_MANAGER_HPP_INCLUDED
 #define GAME_CONTEXT_MANAGER_HPP_INCLUDED
 
+#include <SDL2/SDL_types.h>
 #include <memory>
 #include <vector>
 #include <deque>
-#include <VBN/GameContext.hpp>
+
+class GameContext;
+class WindowManager;
 
 class Engine
 {
 	private:
-		static std::vector<std::shared_ptr<GameContext>> _stack;
-		static std::deque<Uint32> _msPerFrame;
-		static bool _pop;
+		std::vector<std::shared_ptr<GameContext>> _stack;
+		std::shared_ptr<WindowManager> _windowManager;
+		std::deque<Uint32> _msPerFrame;
 
 	public:
+		Engine(std::shared_ptr<WindowManager> windowManager,
+			std::shared_ptr<GameContext> initialContext);
+
 		/* Run the main event loop */
-		static void run(void);
+		void run(void);
 
-		static Uint32 getAverageMillisecondsPerFrame(void);
-		static Uint32 getInstantMillisecondsPerFrame(void);
-
-		/* Push a GameContext to the top of the stack */
-		static void push(std::shared_ptr<GameContext> context);
-		/* Instruct the manager to pop the top GameContext off the stack next
-		 * time fluh() is called */
-		static void pop(void);
-		/* Checks the _pop flag and pops the top GameContext if true */
-		static void flush(void);
+		Uint32 getAverageMillisecondsPerFrame(void);
+		Uint32 getInstantMillisecondsPerFrame(void);
 };
 
 #endif // GAME_CONTEXT_MANAGER_HPP_INCLUDED

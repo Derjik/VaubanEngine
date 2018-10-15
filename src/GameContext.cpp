@@ -6,13 +6,14 @@
 GameContext::GameContext(std::shared_ptr<WindowManager> wm) : _windowManager(wm)
 {}
 
-void GameContext::handleEvent(SDL_Event const & event)
+void GameContext::handleEvent(SDL_Event const & event,
+				std::shared_ptr<HandlerResponse> response)
 {
 	switch(event.type)
 	{
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-			handleKeyboardEvent(event);
+			handleKeyboardEvent(event, response);
 		break;
 
 		case SDL_CONTROLLERDEVICEADDED:
@@ -20,21 +21,22 @@ void GameContext::handleEvent(SDL_Event const & event)
 		case SDL_CONTROLLERAXISMOTION:
 		case SDL_CONTROLLERBUTTONDOWN:
 		case SDL_CONTROLLERBUTTONUP:
-			handleGameControllerEvent(event);
+			handleGameControllerEvent(event, response);
 		break;
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
-			handleMouseEvent(event);
+			handleMouseEvent(event, response);
 		break;
 
 		case SDL_WINDOWEVENT:
-			handleWindowEvent(event);
+			handleWindowEvent(event, response);
 		break;
 	}
 }
 
-void GameContext::handleGameControllerEvent(SDL_Event const & event)
+void GameContext::handleGameControllerEvent(SDL_Event const & event,
+	std::shared_ptr<HandlerResponse> response)
 {
 	switch(event.type)
 	{
@@ -66,7 +68,8 @@ void GameContext::handleGameControllerEvent(SDL_Event const & event)
 	}
 }
 
-void GameContext::handleKeyboardEvent(SDL_Event const & event)
+void GameContext::handleKeyboardEvent(SDL_Event const & event,
+	std::shared_ptr<HandlerResponse> response)
 {
 	Uint32 keyEvType = event.key.type;
 	Window & main(_windowManager->getByName("mainWindow"));
@@ -80,10 +83,12 @@ void GameContext::handleKeyboardEvent(SDL_Event const & event)
 	}
 }
 
-void GameContext::handleMouseEvent(SDL_Event const & event)
+void GameContext::handleMouseEvent(SDL_Event const & event,
+	std::shared_ptr<HandlerResponse> response)
 {}
 
-void GameContext::handleWindowEvent(SDL_Event const & event)
+void GameContext::handleWindowEvent(SDL_Event const & event,
+	std::shared_ptr<HandlerResponse> response)
 {
 	switch (event.window.event)
 	{

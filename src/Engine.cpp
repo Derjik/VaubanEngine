@@ -1,19 +1,33 @@
 #include <VBN/Engine.hpp>
-#include <numeric>
+#include <VBN/HandlerResponse.hpp>
+#include <VBN/GameContext.hpp>
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_timer.h>
+#include <numeric>
 
 #define MS_PER_FRAME_STACK_SIZE 40
 
-std::vector<std::shared_ptr<GameContext>> Engine::_stack;
-std::deque<Uint32> Engine::_msPerFrame(1, 1000);
-bool Engine::_pop(false);
+Engine::Engine(std::shared_ptr<WindowManager> windowManager,
+				std::shared_ptr<GameContext> initialContext) :
+	_windowManager(windowManager),
+	_msPerFrame(1, 1000)
+{
+	if (!windowManager || !initialContext)
+	{
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+			"Null pointer passed to Engine constructor");
+		throw std::string("Null pointer passed to Engine constructor");
+	}
+
+	_stack.push_back(initialContext);
+}
 
 void Engine::run(void)
 {
 	SDL_Event ev;
 
 	Uint32 startTime(0), duration(0), nominalDuration(1000/60);
+	std::shared_ptr<HandlerResponse> response(new HandlerResponse);
 	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
 			"Nominal frame duration : %d ms",
 			nominalDuration);
@@ -26,7 +40,7 @@ void Engine::run(void)
 
 		/* Make the current GameContext handle all queued events */
 		while(SDL_PollEvent(&ev) != 0)
-			_stack.back()->handleEvent(ev);
+			_stack.back()->handleEvent(ev, response);
 
 		/* Make the current GameContext draw itself on screen */
 		_stack.back()->draw();
@@ -58,8 +72,16 @@ void Engine::run(void)
 			_msPerFrame.pop_back();
 /* ----- End chrono statistics */
 
-		/* If the _pop flag is set, pop the current GameContext off the stack */
-		flush();
+		if (response->getPopFlag())
+		{
+			_stack.pop_back();
+			response->resetPopFlag();
+		}
+		else if (response->getNextGameContext())
+		{
+			_stack.push_back(response->getNextGameContext());
+			response->resetNextGameContext();
+		}
 	}
 }
 
@@ -77,23 +99,4 @@ Uint32 Engine::getAverageMillisecondsPerFrame(void)
 Uint32 Engine::getInstantMillisecondsPerFrame(void)
 {
 	return _msPerFrame.front();
-}
-
-void Engine::pop(void)
-{
-	_pop = true;
-}
-
-void Engine::flush(void)
-{
-	if(_pop)
-	{
-		_pop = false;
-		_stack.pop_back();
-	}
-}
-
-void Engine::push(std::shared_ptr<GameContext> context)
-{
-	_stack.push_back(context);
 }
