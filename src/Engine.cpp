@@ -7,18 +7,9 @@
 
 #define MS_PER_FRAME_STACK_SIZE 40
 
-Engine::Engine(std::shared_ptr<WindowManager> windowManager,
-				std::shared_ptr<GameContext> initialContext) :
-	_windowManager(windowManager),
+Engine::Engine(std::shared_ptr<GameContext> initialContext) :
 	_msPerFrame(1, 1000)
 {
-	if (!windowManager || !initialContext)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Null pointer passed to Engine constructor");
-		throw std::string("Null pointer passed to Engine constructor");
-	}
-
 	_stack.push_back(initialContext);
 }
 

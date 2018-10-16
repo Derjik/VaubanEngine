@@ -13,12 +13,10 @@ class Engine
 {
 	private:
 		std::vector<std::shared_ptr<GameContext>> _stack;
-		std::shared_ptr<WindowManager> _windowManager;
 		std::deque<Uint32> _msPerFrame;
 
 	public:
-		Engine(std::shared_ptr<WindowManager> windowManager,
-			std::shared_ptr<GameContext> initialContext);
+		Engine(std::shared_ptr<GameContext> initialContext);
 
 		/* Run the main event loop */
 		void run(void);
