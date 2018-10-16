@@ -1,13 +1,8 @@
 #include <SDL2/SDL_log.h>
+#include <SDL2/SDL_gamecontroller.h>
 #include <VBN/GameControllerManager.hpp>
 
-std::map<unsigned, unsigned>
-GameControllerManager::_instanceToDevice;
-
-std::map<unsigned, unsigned>
-GameControllerManager::_deviceToInstance;
-
-void GameControllerManager::clean(void)
+GameControllerManager::~GameControllerManager(void)
 {
 	SDL_LogDebug(SDL_LOG_CATEGORY_INPUT, "Cleaning controllers");
 
