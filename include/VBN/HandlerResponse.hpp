@@ -3,24 +3,24 @@
 
 #include <memory>
 
-class GameContext;
+class IGameContext;
 
 class HandlerResponse
 {
 	private:
 		bool _popFlag;
-		std::shared_ptr<GameContext> _nextGameContext;
+		std::shared_ptr<IGameContext> _nextIGameContext;
 
 	public:
 		HandlerResponse(void);
 
 		/* API for the EventHandler */
-		void pushGameContext(std::shared_ptr<GameContext>);
+		void pushGameContext(std::shared_ptr<IGameContext>);
 		void popGameContext(void);
 
 		/* API for the Engine */
-		std::shared_ptr<GameContext> getNextGameContext(void);
-		void resetNextGameContext(void);
+		std::shared_ptr<IGameContext> getNextIGameContext(void);
+		void resetNextIGameContext(void);
 		bool getPopFlag(void);
 		void resetPopFlag(void);
 };

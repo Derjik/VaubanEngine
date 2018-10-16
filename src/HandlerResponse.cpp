@@ -2,13 +2,13 @@
 
 HandlerResponse::HandlerResponse(void) : 
 	_popFlag(false),
-	_nextGameContext(nullptr)
+	_nextIGameContext(nullptr)
 {}
 
-void HandlerResponse::pushGameContext(std::shared_ptr<GameContext> gameContext)
+void HandlerResponse::pushGameContext(std::shared_ptr<IGameContext> IGameContext)
 {
-	if (!_nextGameContext)
-		_nextGameContext = gameContext;
+	if (!_nextIGameContext)
+		_nextIGameContext = IGameContext;
 }
 
 void HandlerResponse::popGameContext(void)
@@ -16,14 +16,14 @@ void HandlerResponse::popGameContext(void)
 	_popFlag = true;
 }
 
-std::shared_ptr<GameContext> HandlerResponse::getNextGameContext(void)
+std::shared_ptr<IGameContext> HandlerResponse::getNextIGameContext(void)
 {
-	return _nextGameContext;
+	return _nextIGameContext;
 }
 
-void HandlerResponse::resetNextGameContext(void)
+void HandlerResponse::resetNextIGameContext(void)
 {
-	_nextGameContext.reset();
+	_nextIGameContext.reset();
 }
 
 bool HandlerResponse::getPopFlag(void)

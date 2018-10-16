@@ -1,13 +1,13 @@
 #include <VBN/Engine.hpp>
 #include <VBN/HandlerResponse.hpp>
-#include <VBN/GameContext.hpp>
+#include <VBN/IGameContext.hpp>
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_timer.h>
 #include <numeric>
 
 #define MS_PER_FRAME_STACK_SIZE 40
 
-Engine::Engine(std::shared_ptr<GameContext> initialContext) :
+Engine::Engine(std::shared_ptr<IGameContext> initialContext) :
 	_msPerFrame(1, 1000)
 {
 	_stack.push_back(initialContext);
@@ -29,11 +29,11 @@ void Engine::run(void)
 /* ---- Begin chrono measure */
 		startTime = SDL_GetTicks();
 
-		/* Make the current GameContext handle all queued events */
+		/* Make the current IGameContext handle all queued events */
 		while(SDL_PollEvent(&ev) != 0)
 			_stack.back()->handleEvent(ev, response);
 
-		/* Make the current GameContext draw itself on screen */
+		/* Make the current IGameContext draw itself on screen */
 		_stack.back()->draw();
 
 		duration = SDL_GetTicks() - startTime;
@@ -68,10 +68,10 @@ void Engine::run(void)
 			_stack.pop_back();
 			response->resetPopFlag();
 		}
-		else if (response->getNextGameContext())
+		else if (response->getNextIGameContext())
 		{
-			_stack.push_back(response->getNextGameContext());
-			response->resetNextGameContext();
+			_stack.push_back(response->getNextIGameContext());
+			response->resetNextIGameContext();
 		}
 	}
 }

@@ -6,17 +6,17 @@
 #include <vector>
 #include <deque>
 
-class GameContext;
+class IGameContext;
 class WindowManager;
 
 class Engine
 {
 	private:
-		std::vector<std::shared_ptr<GameContext>> _stack;
+		std::vector<std::shared_ptr<IGameContext>> _stack;
 		std::deque<Uint32> _msPerFrame;
 
 	public:
-		Engine(std::shared_ptr<GameContext> initialContext);
+		Engine(std::shared_ptr<IGameContext> initialContext);
 
 		/* Run the main event loop */
 		void run(void);
