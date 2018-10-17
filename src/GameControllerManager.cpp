@@ -1,6 +1,6 @@
-#include <SDL2/SDL_log.h>
-#include <SDL2/SDL_gamecontroller.h>
 #include <VBN/GameControllerManager.hpp>
+#include <SDL2/SDL_log.h>
+#include <string>
 
 GameControllerManager::~GameControllerManager(void)
 {
@@ -36,6 +36,17 @@ bool GameControllerManager::openFromDeviceIndex(unsigned const index)
 	{
 		SDL_Joystick * newJoystick = SDL_GameControllerGetJoystick(newGC);
 		unsigned instanceId = SDL_JoystickInstanceID(newJoystick);
+		if (SDL_JoystickIsHaptic(newJoystick))
+		{
+			SDL_Haptic * newHaptic = SDL_HapticOpenFromJoystick(newJoystick);
+			_instanceToHaptic.insert(std::make_pair(instanceId, newHaptic));
+
+			if (SDL_HapticRumbleSupported(newHaptic) == SDL_TRUE)
+				if (SDL_HapticRumbleInit(newHaptic))
+					SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+						"Error while initializing haptic: %s",
+						SDL_GetError());
+		}
 
 		_deviceToInstance.insert(std::make_pair(index, instanceId));
 		_instanceToDevice.insert(std::make_pair(instanceId, index));
@@ -90,6 +101,13 @@ bool GameControllerManager::closeFromInstance(unsigned const instance)
 		return false;
 	}
 
+	/* Close haptic device if any */
+	if (_instanceToHaptic.find(instance) != _instanceToHaptic.end())
+	{
+		SDL_HapticClose(_instanceToHaptic.at(instance));
+		_instanceToHaptic.erase(instance);
+	}
+
 	SDL_LogDebug(SDL_LOG_CATEGORY_INPUT,
 		"GameControllerManager::closeFromInstance: "
 		"Closing instance @%d at address %p",
@@ -106,4 +124,21 @@ bool GameControllerManager::closeFromInstance(unsigned const instance)
 	_instanceToDevice.erase(iterator);
 
 	return true;
+}
+
+SDL_Haptic * GameControllerManager::getHapticFromInstance(
+	unsigned const instance)
+{
+	if (_instanceToHaptic.find(instance) == _instanceToHaptic.end())
+		return nullptr;
+	else
+		return _instanceToHaptic.at(instance);
+}
+
+SDL_GameController * GameControllerManager::getFirstController(void)
+{
+	if (!_instanceToDevice.empty())
+		return SDL_GameControllerFromInstanceID(_instanceToDevice.begin()->first);
+	else
+		return nullptr;
 }

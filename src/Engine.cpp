@@ -30,7 +30,7 @@ void Engine::run(void)
 		startTime = SDL_GetTicks();
 
 		/* Make the current IGameContext handle all queued events */
-		while(SDL_PollEvent(&ev) != 0)
+		while (SDL_PollEvent(&ev) != 0)
 			_stack.back()->handleEvent(ev, response);
 
 		/* Make the current IGameContext draw itself on screen */
