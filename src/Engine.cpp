@@ -17,7 +17,15 @@ void Engine::run(void)
 {
 	SDL_Event ev;
 
-	Uint32 startTime(0), duration(0), nominalDuration(1000/60);
+	Sint32 remaining(0);
+
+	Uint32 startTime(0),
+		duration(0),
+		nominalDuration(1000/60),
+		gameTicks(0);
+
+	float ratio(0.01);
+
 	std::shared_ptr<HandlerResponse> response(new HandlerResponse);
 	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
 			"Nominal frame duration : %d ms",
@@ -29,39 +37,35 @@ void Engine::run(void)
 /* ---- Begin chrono measure */
 		startTime = SDL_GetTicks();
 
-		/* Make the current IGameContext handle all queued events */
+		/* Input */
 		while (SDL_PollEvent(&ev) != 0)
 			_stack.back()->handleEvent(ev, response);
 
-		/* Make the current IGameContext draw itself on screen */
-		_stack.back()->draw();
+		/* Output */
+		_stack.back()->display();
+
+		/* Time */
+		_stack.back()->elapse(nominalDuration * ratio);
 
 		duration = SDL_GetTicks() - startTime;
 /* ----- End chrono measure */
 
 /* ----- Begin chrono correction */
-
-		/* Frame was to short */
-		if(duration < nominalDuration)
-			/* Wait for a delta time */
-			SDL_Delay(nominalDuration - duration);
-
-		/* Frame was to long */
-		else if (duration > nominalDuration)
+		remaining = nominalDuration - duration;
+		if (remaining > 0)
+			SDL_Delay(remaining);
+		else if (remaining < 0)
 		{
-			/* Warn in logs */
-			/* TODO : gameticks correction goes here */
 			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
 				"Frame was too long to prepare : %d ms",
 				duration);
+			_stack.back()->elapse((duration - nominalDuration) * ratio);
 		}
 /* ----- End chrono correction */
 
-/* ----- Begin chrono statistics */
 		_msPerFrame.push_front(SDL_GetTicks() - startTime);
 		while(_msPerFrame.size() > MS_PER_FRAME_STACK_SIZE)
 			_msPerFrame.pop_back();
-/* ----- End chrono statistics */
 
 		if (response->getPopFlag())
 		{

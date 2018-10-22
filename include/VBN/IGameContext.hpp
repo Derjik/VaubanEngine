@@ -17,7 +17,10 @@ class IGameContext
 
 		/* This method must perform a complete drawing (including RenderPresent)
 		of the adequate scene for the specialized context */
-		virtual void draw(void) = 0;
+		virtual void display(void) = 0;
+
+		/* This is the time computation method */
+		virtual void elapse(Uint32 gameTicks) = 0;
 };
 
 #endif // I_GAME_CONTEXT_INCLUDED_HPP
