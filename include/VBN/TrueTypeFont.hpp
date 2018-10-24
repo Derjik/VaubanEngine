@@ -7,24 +7,24 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_surface.h>
 
-struct TTFDeleter { void operator () (TTF_Font * font) const; };
-struct GlyphMetrics
-{
-	int xMin;
-	int yMin;
-	int xMax;
-	int yMax;
-	int width;
-	int height;
-	int advance;
-};
-
 class TrueTypeFont
 {
 	private:
+		struct TTFDeleter { void operator () (TTF_Font * font) const; };
 		std::unique_ptr<TTF_Font, TTFDeleter> _font;
 
 	public:
+		struct GlyphMetrics
+		{
+			int xMin;
+			int yMin;
+			int xMax;
+			int yMax;
+			int width;
+			int height;
+			int advance;
+		};
+
 		TrueTypeFont(std::string const & filePath,
 			unsigned const size,
 			unsigned const face = 0);

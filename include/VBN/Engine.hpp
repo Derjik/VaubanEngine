@@ -7,7 +7,6 @@
 #include <deque>
 
 class IGameContext;
-class WindowManager;
 
 class Engine
 {
@@ -19,7 +18,7 @@ class Engine
 		Engine(std::shared_ptr<IGameContext> initialContext);
 
 		/* Run the main event loop */
-		void run(void);
+		void run(float const gameTicksPerMillisecond);
 
 		Uint32 getAverageMillisecondsPerFrame(void);
 		Uint32 getInstantMillisecondsPerFrame(void);

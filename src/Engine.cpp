@@ -1,5 +1,5 @@
 #include <VBN/Engine.hpp>
-#include <VBN/HandlerResponse.hpp>
+#include <VBN/EngineUpdate.hpp>
 #include <VBN/IGameContext.hpp>
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_timer.h>
@@ -13,69 +13,67 @@ Engine::Engine(std::shared_ptr<IGameContext> initialContext) :
 	_stack.push_back(initialContext);
 }
 
-void Engine::run(void)
+void Engine::run(float const gameTicksPerMillisecond)
 {
 	SDL_Event ev;
 
-	Sint32 remaining(0);
+	Uint32  frameStartTime(0),
+			frameDuration(0),
+			nominalFrameDuration(1000 / 60);
 
-	Uint32 startTime(0),
-		duration(0),
-		nominalDuration(1000/60),
-		gameTicks(0);
+	Sint32 unusedTime(0);
 
-	float ratio(0.01);
+	std::shared_ptr<EngineUpdate> update(new EngineUpdate);
 
-	std::shared_ptr<HandlerResponse> response(new HandlerResponse);
 	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-			"Nominal frame duration : %d ms",
-			nominalDuration);
+			"Nominal frame frameDuration : %d ms",
+			nominalFrameDuration);
 
 	/* One loop equals one frame */
 	while(!_stack.empty())
 	{
 /* ---- Begin chrono measure */
-		startTime = SDL_GetTicks();
+		frameStartTime = SDL_GetTicks();
 
 		/* Input */
 		while (SDL_PollEvent(&ev) != 0)
-			_stack.back()->handleEvent(ev, response);
+			_stack.back()->handleEvent(ev, update);
+
+		/* Time */
+		_stack.back()->elapse(nominalFrameDuration * gameTicksPerMillisecond);
 
 		/* Output */
 		_stack.back()->display();
 
-		/* Time */
-		_stack.back()->elapse(nominalDuration * ratio);
-
-		duration = SDL_GetTicks() - startTime;
+		frameDuration = SDL_GetTicks() - frameStartTime;
 /* ----- End chrono measure */
 
 /* ----- Begin chrono correction */
-		remaining = nominalDuration - duration;
-		if (remaining > 0)
-			SDL_Delay(remaining);
-		else if (remaining < 0)
+		unusedTime = nominalFrameDuration - frameDuration;
+		if (unusedTime > 0)
+			SDL_Delay(unusedTime);
+		else if (unusedTime < 0)
 		{
 			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
 				"Frame was too long to prepare : %d ms",
-				duration);
-			_stack.back()->elapse((duration - nominalDuration) * ratio);
+				frameDuration);
+			_stack.back()->elapse((frameDuration - nominalFrameDuration) * gameTicksPerMillisecond);
 		}
 /* ----- End chrono correction */
 
-		_msPerFrame.push_front(SDL_GetTicks() - startTime);
+		_msPerFrame.push_front(SDL_GetTicks() - frameStartTime);
 		while(_msPerFrame.size() > MS_PER_FRAME_STACK_SIZE)
 			_msPerFrame.pop_back();
 
-		if (response->getPopFlag())
+		if (update->getPopFlag())
 		{
 			_stack.pop_back();
-			response->resetPopFlag();
+			update->resetPopFlag();
 		}
-		else if (response->getNextIGameContext())
+		else if (update->getNextIGameContext())
 		{
-			_stack.push_back(response->getNextIGameContext());
-			response->resetNextIGameContext();
+			_stack.push_back(update->getNextIGameContext());
+			update->resetNextIGameContext();
 		}
 	}
 }

@@ -1,8 +1,8 @@
 #ifndef TEXTURE_HPP_INCLUDED
 #define TEXTURE_HPP_INCLUDED
 
-#include <string>
 #include <memory>
+#include <string>
 #include <SDL2/SDL_render.h>
 #include <VBN/Surface.hpp>
 

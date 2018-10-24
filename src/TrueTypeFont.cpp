@@ -102,7 +102,7 @@ std::string TrueTypeFont::getFaceFamilyName(void) const
 	return TTF_FontFaceFamilyName(_font.get());
 }
 
-GlyphMetrics TrueTypeFont::getGlyphMetrics(char const c) const
+TrueTypeFont::GlyphMetrics TrueTypeFont::getGlyphMetrics(char const c) const
 {
 	GlyphMetrics metrics;
 	TTF_GlyphMetrics(_font.get(), c,
@@ -165,7 +165,7 @@ SDL_Surface * TrueTypeFont::renderSolid(std::string const & text,
 	return renderedText;
 }
 
-void TTFDeleter::operator() (TTF_Font * font) const
+void TrueTypeFont::TTFDeleter::operator() (TTF_Font * font) const
 {
 	TTF_CloseFont(font);
 }

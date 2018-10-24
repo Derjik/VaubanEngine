@@ -9,45 +9,38 @@
 #include <VBN/BitmapFontManager.hpp>
 #include <VBN/Texture.hpp>
 
-/* SDL_Window raw pointer deleter */
-struct SDLWindowDeleter { void operator () (SDL_Window * window) const; };
-/* SDL_Renderer raw pointer deleter */
-struct SDLRendererDeleter { void operator () (SDL_Renderer * renderer) const; };
-
-enum RatioType
-{
-	FIXED_RATIO_FRAME,
-	FIXED_RATIO_STRETCH,
-	DYNAMIC_RATIO
-};
-
-// Forward declarations
 class TrueTypeFontManager;
 
 class Window
 {
+	public:
+		enum RatioType
+		{
+			FIXED_RATIO_FRAME,
+			FIXED_RATIO_STRETCH,
+			DYNAMIC_RATIO
+		};
+
 	private:
-		/* Encapsulated SDL_Window object */
+		struct SDLWindowDeleter { void operator () (SDL_Window * window) const; };
+		struct SDLRendererDeleter { void operator () (SDL_Renderer * renderer) const; };
+
 		std::unique_ptr<SDL_Window, SDLWindowDeleter> _window;
-		/* Type of aspect ratio */
+
 		RatioType _ratioType;
 		unsigned _canvasWidth;
 		unsigned _canvasHeight;
 
-		/* Encapsulated SDL_Renderer object */
 		std::unique_ptr<SDL_Renderer, SDLRendererDeleter> _renderer;
 
-		/* Encapsulated BitmapFontManager object */
 		std::unique_ptr<BitmapFontManager> _bitmapFontManager;
 
-		/* Texture storage map */
 		std::map<std::string, Texture> _textures;
 
 		void applyRatioTypeSettings(void);
 		void updateCanvasFrame(SDL_Rect const & outerSurface);
 
 	public:
-		/* Full constructor */
 		Window(std::string const & title,
 			int xPosition, int yPosition,
 			int windowWidth, int windowHeight,
@@ -56,16 +49,13 @@ class Window
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
 
-		/* Copy constructor call is forbidden */
 		Window(Window const & other) = delete;
+		Window(Window & other) = delete;
 
-		/* Move constructor */
 		Window(Window && other);
 
-		/* Set/unset fullscreen */
 		void toggleFullscreen(void);
 
-		/* Instantiate and insert a Texture with the specified text */
 		bool addTextTexture(
 				std::string const & textureName,
 				std::shared_ptr<TrueTypeFontManager> ttfManager,
@@ -76,7 +66,6 @@ class Window
 
 		bool removeTexture(std::string const & name);
 
-		/* Print text at given location using a BitmapFont */
 		void printText(std::string const & text,
 				std::string const & fontName,
 				int const size,
@@ -94,8 +83,8 @@ class Window
 		float getBrightness(void) const;
 		int getCurrentDisplayIndex(void) const;
 		SDL_Renderer * getRenderer(void);
-		Uint32 getId(void);
 		SDL_Window * getAddress(void);
+		Uint32 getId(void);
 
 		void handleResize(void);
 };

@@ -21,7 +21,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 
 	/* Extract basic font metrics */
 	_lineSkip = font.getLineSkip();
-	GlyphMetrics spaceMetrics = font.getGlyphMetrics(' ');
+	TrueTypeFont::GlyphMetrics spaceMetrics = font.getGlyphMetrics(' ');
 
 	/* Iterate through character space, building 16 char long lines */
 	unsigned char currentCharacter(0);
@@ -137,8 +137,9 @@ void BitmapFont::renderText(std::string const & text,
 	_texture.setColorAlphaMod(color);
 
 	std::vector<std::pair<int, int>> lines;
-	int	index(0),
-		lineAdvance(0),
+	unsigned int index(0);
+
+	int	lineAdvance(0),
 		lineIndex(0),
 		lineBegin(0),
 		lineEnd(0),
@@ -221,17 +222,17 @@ void BitmapFont::renderText(std::string const & text,
 		int currentAdvance(0);
 		for(char c : tempo)
 		{
-			GlyphMetrics metrics = _glyphMetrics[c];
+			TrueTypeFont::GlyphMetrics metrics = _glyphMetrics[c];
 			SDL_Rect source = _clips[c];
 			SDL_Rect glyphDest{destination.x + currentAdvance + _glyphMetrics[c].xMin,
 						destination.y + lineNumber*_lineSkip,
 						metrics.width,
 						_lineSkip};
 
-			error |= SDL_RenderCopy(renderer,
+			error |= (SDL_RenderCopy(renderer,
 						_texture.getRawTexture(),
 						&source,
-						&glyphDest);
+						&glyphDest) != 0);
 
 			currentAdvance += metrics.advance;
 		}

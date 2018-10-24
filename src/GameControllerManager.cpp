@@ -70,7 +70,7 @@ bool GameControllerManager::openFromDeviceIndex(unsigned const index)
 	return true;
 }
 
-bool GameControllerManager::closeFromInstance(unsigned const instance)
+bool GameControllerManager::closeInstance(unsigned const instance)
 {
 	/* Look for the instance to close in current mappings */
 	auto iterator = _instanceToDevice.find(instance);

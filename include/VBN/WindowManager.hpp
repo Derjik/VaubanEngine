@@ -19,7 +19,7 @@ class WindowManager
 			std::string const & title,
 			int x, int y,
 			int width, int height,
-			RatioType ratioType,
+			Window::RatioType ratioType,
 			Uint32 windowFlags,
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> & ttfManager);

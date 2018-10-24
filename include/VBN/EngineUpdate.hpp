@@ -1,18 +1,18 @@
-#ifndef HANDLER_RESPONSE_HPP_INCLUDED
-#define HANDLER_RESPONSE_HPP_INCLUDED
+#ifndef ENGINE_UPDATE_HPP_INCLUDED
+#define ENGINE_UPDATE_HPP_INCLUDED
 
 #include <memory>
 
 class IGameContext;
 
-class HandlerResponse
+class EngineUpdate
 {
 	private:
 		bool _popFlag;
 		std::shared_ptr<IGameContext> _nextIGameContext;
 
 	public:
-		HandlerResponse(void);
+		EngineUpdate(void);
 
 		/* API for the EventHandler */
 		void pushGameContext(std::shared_ptr<IGameContext>);
@@ -25,4 +25,4 @@ class HandlerResponse
 		void resetPopFlag(void);
 };
 
-#endif // HANDLER_RESPONSE_HPP_INCLUDED
+#endif // ENGINE_UPDATE_HPP_INCLUDED

@@ -13,7 +13,7 @@ class BitmapFont
 	private:
 		std::string _alphabet;
 		Texture _texture;
-		std::array<GlyphMetrics, UCHAR_MAX> _glyphMetrics;
+		std::array<TrueTypeFont::GlyphMetrics, UCHAR_MAX> _glyphMetrics;
 		std::array<SDL_Rect, UCHAR_MAX> _clips;
 		int _lineSkip;
 

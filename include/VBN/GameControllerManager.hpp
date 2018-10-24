@@ -8,14 +8,14 @@
 class GameControllerManager
 {
 	private:
-		std::map<unsigned, unsigned> _instanceToDevice;
 		std::map<unsigned, unsigned> _deviceToInstance;
+		std::map<unsigned, unsigned> _instanceToDevice;
 		std::map<unsigned, SDL_Haptic*> _instanceToHaptic;
 
 	public:
 		~GameControllerManager(void);
 		bool openFromDeviceIndex(unsigned const);
-		bool closeFromInstance(unsigned const);
+		bool closeInstance(unsigned const);
 
 		SDL_Haptic * getHapticFromInstance(unsigned const);
 		SDL_GameController * getFirstController(void);

@@ -259,12 +259,12 @@ SDL_Renderer * Window::getRenderer(void)
 //	font.renderDebug(_renderer.get(), xDest, yDest);
 //}
 
-void SDLWindowDeleter::operator()(SDL_Window * window) const
+void Window::SDLWindowDeleter::operator()(SDL_Window * window) const
 {
 	SDL_DestroyWindow(window);
 }
 
-void SDLRendererDeleter::operator()(SDL_Renderer * renderer) const
+void Window::SDLRendererDeleter::operator()(SDL_Renderer * renderer) const
 {
 	SDL_DestroyRenderer(renderer);
 }
