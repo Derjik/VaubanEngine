@@ -51,10 +51,10 @@ class Window
 
 		Window(Window const & other) = delete;
 		Window(Window & other) = delete;
-
 		Window(Window && other);
 
 		void toggleFullscreen(void);
+		void setBlendMode(SDL_BlendMode const & blendMode);
 
 		bool addTextTexture(
 				std::string const & textureName,

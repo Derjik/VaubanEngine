@@ -51,6 +51,8 @@ Window::Window(std::string const & title,
 			+ std::string(SDL_GetError()) + "'");
 	}
 
+	setBlendMode(SDL_BLENDMODE_BLEND);
+
 	/* Apply ratioType-specific settings */
 	applyRatioTypeSettings();
 
@@ -159,6 +161,13 @@ void Window::toggleFullscreen(void)
 		SDL_SetWindowFullscreen(_window.get(), SDL_WINDOW_FULLSCREEN_DESKTOP);
 		applyRatioTypeSettings();
 	}
+}
+
+void Window::setBlendMode(SDL_BlendMode const & blendMode)
+{
+	if (SDL_SetRenderDrawBlendMode(_renderer.get(), blendMode))
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"SDL_SetRenderDrawBlendMode() returned '%s'", SDL_GetError());
 }
 
 bool Window::addTextTexture(std::string const & textureName,
