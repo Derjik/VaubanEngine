@@ -6,12 +6,12 @@
 #include <SDL2/SDL_render.h>
 #include <VBN/Surface.hpp>
 
-struct SDLTextureDeleter { void operator() (SDL_Texture * texture) {} };
-
 class Texture
 {
 	private:
+		struct SDLTextureDeleter { void operator() (SDL_Texture * texture) {} };
 		std::unique_ptr<SDL_Texture, SDLTextureDeleter> _rawTexture;
+
 		Uint32 _pixelFormat;
 		int _access;
 		int _width;

@@ -22,7 +22,7 @@ class WindowManager
 			Window::RatioType ratioType,
 			Uint32 windowFlags,
 			Uint32 rendererFlags,
-			std::shared_ptr<TrueTypeFontManager> & ttfManager);
+			std::shared_ptr<TrueTypeFontManager> ttfManager);
 
 		Window & getByName(std::string const &);
 		Window & getByAddress(SDL_Window *);

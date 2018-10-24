@@ -10,7 +10,7 @@ void WindowManager::add(
 	Window::RatioType ratioType,
 	Uint32 windowFlags,
 	Uint32 rendererFlags,
-	std::shared_ptr<TrueTypeFontManager> & ttfManager)
+	std::shared_ptr<TrueTypeFontManager> ttfManager)
 {
 	if(title.empty() || name.empty())
 		return;
