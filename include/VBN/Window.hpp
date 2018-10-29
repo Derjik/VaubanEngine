@@ -6,8 +6,8 @@
 #include <map>
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_render.h>
-#include <VBN/BitmapFontManager.hpp>
 #include <VBN/Texture.hpp>
+#include <VBN/BitmapFontManager.hpp>
 
 class TrueTypeFontManager;
 
@@ -23,15 +23,14 @@ class Window
 
 	private:
 		struct SDLWindowDeleter { void operator () (SDL_Window * window) const; };
-		struct SDLRendererDeleter { void operator () (SDL_Renderer * renderer) const; };
-
 		std::unique_ptr<SDL_Window, SDLWindowDeleter> _window;
+
+		struct SDLRendererDeleter { void operator () (SDL_Renderer * renderer) const; };
+		std::unique_ptr<SDL_Renderer, SDLRendererDeleter> _renderer;
 
 		RatioType _ratioType;
 		unsigned _canvasWidth;
 		unsigned _canvasHeight;
-
-		std::unique_ptr<SDL_Renderer, SDLRendererDeleter> _renderer;
 
 		std::unique_ptr<BitmapFontManager> _bitmapFontManager;
 
@@ -72,10 +71,10 @@ class Window
 				SDL_Color const & color,
 				SDL_Rect const & destination);
 
-//		void printDebugText(std::string const & fontName,
-//			int const size,
-//			int const xDest,
-//			int const yDest);
+		void printDebugText(std::string const & fontName,
+			int const size,
+			int const xDest,
+			int const yDest);
 
 		Texture & getTexture(std::string const & name);
 

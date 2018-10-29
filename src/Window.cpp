@@ -1,11 +1,9 @@
 #include <VBN/Window.hpp>
 #include <VBN/Introspection.hpp>
 #include <VBN/BitmapFontManager.hpp>
-#include <SDL2/SDL_log.h>
+#include <VBN/Logging.hpp>
+#include <VBN/Exceptions.hpp>
 
-/*
- * Full constructor
- */
 Window::Window(std::string const & title,
 	int xPosition, int yPosition,
 	int windowWidth, int windowHeight,
@@ -20,52 +18,52 @@ Window::Window(std::string const & title,
 	_renderer(nullptr),
 	_bitmapFontManager(nullptr)
 {
-	/* Instantiate SDL Window */
 	_window = std::unique_ptr<SDL_Window, SDLWindowDeleter>(
 		SDL_CreateWindow(title.c_str(),
 						xPosition, yPosition,
 						windowWidth, windowHeight,
 						windowFlags),
 		SDLWindowDeleter());
+
 	if(_window == nullptr)
 	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Window : SDL_CreateWindow() returned error '%s'",
+		CRITICAL(SDL_LOG_CATEGORY_ERROR,
+			"SDL_CreateWindow() returned error '%s'",
 			SDL_GetError());
-
-		throw std::string("Window: SDL_CreateWindow() returned error '"
-			+ std::string(SDL_GetError()) + "'");
+		THROW(Exception, "Window: SDL_CreateWindow() returned error '%s'", SDL_GetError());
 	}
 
-	/* Instantiate SDL Rendering Context */
 	_renderer = std::unique_ptr<SDL_Renderer, SDLRendererDeleter>(
 		SDL_CreateRenderer(_window.get(), -1, rendererFlags),
 		SDLRendererDeleter());
 	if(_renderer == nullptr)
 	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+		CRITICAL(SDL_LOG_CATEGORY_ERROR,
 			"Window: SDL_CreateRenderer() returned error '%s'",
 			SDL_GetError());
-		throw std::string(
-			"Window: SDL_CreateRenderer() returned error '"
-			+ std::string(SDL_GetError()) + "'");
+		THROW(Exception, "Window: SDL_CreateRenderer() returned error '%s'",
+			SDL_GetError());
 	}
 
-	setBlendMode(SDL_BLENDMODE_BLEND);
+	_textures.emplace(std::make_pair(
+		std::string("default"),
+		Texture::fromScratch(
+			_renderer.get(),
+			SDL_PIXELFORMAT_RGBA32,
+			SDL_TEXTUREACCESS_STATIC,
+			256, 256)));
 
-	/* Apply ratioType-specific settings */
+	setBlendMode(SDL_BLENDMODE_BLEND);
 	applyRatioTypeSettings();
 
-	/* Introspect newly created context */
 	SDL_RendererInfo rendererInfo;
 	SDL_GetRendererInfo(_renderer.get(), &rendererInfo);
 	Introspection::logRendererInfo(_renderer.get());
 
-	/* Instantiate BitmapFontManager */
 	_bitmapFontManager = std::unique_ptr<BitmapFontManager>(
 		new BitmapFontManager(ttfManager, _renderer.get()));
 	if(_bitmapFontManager == nullptr)
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"Window: Failed to instantiate BitmapFontManager");
 }
 
@@ -83,7 +81,7 @@ void Window::applyRatioTypeSettings(void)
 {
 	Uint32 windowFlags = SDL_GetWindowFlags(_window.get());
 
-	/* Windowed */
+	/* Currently windowed */
 	if ((windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == false)
 	{
 		switch (_ratioType)
@@ -109,7 +107,7 @@ void Window::applyRatioTypeSettings(void)
 			break;
 		}
 	}
-	/* Fullscreen */
+	/* Currently fullscreen */
 	else
 	{
 		switch (_ratioType)
@@ -167,7 +165,8 @@ void Window::setBlendMode(SDL_BlendMode const & blendMode)
 {
 	if (SDL_SetRenderDrawBlendMode(_renderer.get(), blendMode))
 		ERROR(SDL_LOG_CATEGORY_ERROR,
-			"SDL_SetRenderDrawBlendMode() returned '%s'", SDL_GetError());
+			"SDL_SetRenderDrawBlendMode() returned '%s'",
+			SDL_GetError());
 }
 
 bool Window::addTextTexture(std::string const & textureName,
@@ -194,11 +193,12 @@ Texture & Window::getTexture(std::string const & name)
 {
 	if(_textures.find(name) == _textures.end())
 	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"Window::getTexture: No texture named '%s'",
 			name.c_str());
-		throw std::string("No texture named '" + name + "'");
 
+		// TODO : add default check
+		return _textures.at("default");
 	}
 	else
 		return _textures.at(name);
@@ -206,18 +206,22 @@ Texture & Window::getTexture(std::string const & name)
 
 bool Window::removeTexture(std::string const & name)
 {
-	/* Ensure texture exists */
+	if (name == std::string("default"))
+	{
+		ERROR(SDL_LOG_CATEGORY_ERROR, "Cannot remove the default texture");
+		return false;
+	}
+
 	auto iterator = _textures.find(name);
 	if(iterator == _textures.end())
 	{
-		SDL_LogError(SDL_LOG_CATEGORY_RENDER,
+		ERROR(SDL_LOG_CATEGORY_RENDER,
 			"Cannot remove texture '%s' : not found in mappings",
 			name.c_str());
 		return false;
 	}
 
 	_textures.erase(name);
-
 	return true;
 }
 
@@ -259,14 +263,14 @@ SDL_Renderer * Window::getRenderer(void)
 	return _renderer.get();
 }
 
-//void Window::printDebugText(std::string const & fontName,
-//	int const size,
-//	int const xDest,
-//	int const yDest)
-//{
-//	BitmapFont & font = _bitmapFontManager->getFont(fontName, size);
-//	font.renderDebug(_renderer.get(), xDest, yDest);
-//}
+void Window::printDebugText(std::string const & fontName,
+	int const size,
+	int const xDest,
+	int const yDest)
+{
+	BitmapFont & font = _bitmapFontManager->getFont(fontName, size);
+	font.renderDebug(_renderer.get(), xDest, yDest);
+}
 
 void Window::SDLWindowDeleter::operator()(SDL_Window * window) const
 {

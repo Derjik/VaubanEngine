@@ -7,6 +7,8 @@
 #include <VBN/Engine.hpp>
 #include <VBN/TrueTypeFontManager.hpp>
 #include <VBN/Surface.hpp>
+#include <VBN/Logging.hpp>
+#include <VBN/Exceptions.hpp>
 
 BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 						std::string const & name, int size,
@@ -16,18 +18,28 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 									SDL_TEXTUREACCESS_STATIC,
 									10, 10))
 {
-	/* Acquire reference to target font (may throw) */
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfMaanager'");
+
+	if (name.empty())
+		THROW(Exception, "Received empty 'name'");
+
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
+
+	if (renderer == nullptr)
+		THROW(Exception, "Received nullptr 'renderer'");
+
 	TrueTypeFont & font = ttfManager->getFont(name, size);
 
-	/* Extract basic font metrics */
 	_lineSkip = font.getLineSkip();
 	TrueTypeFont::GlyphMetrics spaceMetrics = font.getGlyphMetrics(' ');
 
-	/* Iterate through character space, building 16 char long lines */
 	unsigned char currentCharacter(0);
 	int currentLine(0), maxWidth(0);
 	std::vector<Surface> lineSurfaces;
 
+	/* Iterate through available alphabet, building 16 char long lines */
 	do
 	{
 		std::string lineString;
@@ -54,8 +66,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 
 				++currentPrintable;
 
-				/*
-				SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+				VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 					"'%c' x(%d;%d)y(%d;%d)a(%d)",
 					currentCharacter,
 					_glyphMetrics[currentCharacter].xMin,
@@ -63,7 +74,6 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 					_glyphMetrics[currentCharacter].yMin,
 					_glyphMetrics[currentCharacter].yMax,
 					_glyphMetrics[currentCharacter].advance);
-				*/
 			}
 			else
 			{
@@ -174,15 +184,13 @@ void BitmapFont::renderText(std::string const & text,
 			lineAdvance += _glyphMetrics[currentCharacter].advance;
 			++index;
 
-			/*
-			SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+			VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 				"L%d(%d->%d) %c '%s'",
 				lineIndex,
 				lineBegin,
 				lineEnd,
 				currentCharacter,
 				text.substr(lineBegin, lineEnd-lineBegin+1).c_str());
-				*/
 		}
 
 		/* Line is too large to be displayed in destination rectangle */
@@ -210,14 +218,12 @@ void BitmapFont::renderText(std::string const & text,
 
 		int lineNumber = lineIterator - lines.begin();
 
-		/*
-		SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+		VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 			"L%d(%d->%d) '%s'",
 			lineNumber,
 			lineIterator->first,
 			lineIterator->second,
 			tempo.c_str());
-		*/
 
 		int currentAdvance(0);
 		for(char c : tempo)
@@ -240,7 +246,7 @@ void BitmapFont::renderText(std::string const & text,
 
 	if(error)
 	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"BitmapFont::renderText: "
 			"Some SDL call returned error '%s'",
 			SDL_GetError());

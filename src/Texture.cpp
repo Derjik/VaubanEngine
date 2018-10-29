@@ -1,6 +1,7 @@
-#include <SDL2/SDL_log.h>
 #include <VBN/Surface.hpp>
 #include <VBN/Texture.hpp>
+#include <VBN/Logging.hpp>
+#include <VBN/Exceptions.hpp>
 
 Texture::Texture(SDL_Texture * rawTexture) :
 	_rawTexture(rawTexture, SDLTextureDeleter()),
@@ -10,20 +11,13 @@ Texture::Texture(SDL_Texture * rawTexture) :
 	_height(0)
 {
 	if(rawTexture == nullptr)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Texture: null pointer passed to constructor");
-		throw std::string(
-			"Texture: null pointer passed to constructor");
-	}
-	else
-	{
-		SDL_QueryTexture(_rawTexture.get(),
-				&_pixelFormat,
-				&_access,
-				&_width,
-				&_height);
-	}
+		THROW(Exception, "Received nullptr 'rawTexture'");
+
+	SDL_QueryTexture(_rawTexture.get(),
+			&_pixelFormat,
+			&_access,
+			&_width,
+			&_height);
 }
 
 Texture::Texture(Texture && other) :
@@ -76,11 +70,9 @@ void Texture::setColorAlphaMod(SDL_Color const & color)
 				color.r,
 				color.g,
 				color.b))
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Texture::setColorAlphaMod: call to "
-			"SDL_SetTextureColorMod() returned error '%s'",
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Failed to set color and alpha : SDL error '%s'",
 			SDL_GetError());
-
 }
 
 SDL_Color Texture::getColorAlphaMod(void) const
@@ -91,14 +83,15 @@ SDL_Color Texture::getColorAlphaMod(void) const
 		&rgba.r,
 		&rgba.g,
 		&rgba.b))
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Texture::getColorAlphaMod: SDL_GetTextureColorMod() "
-			"returned error %s", SDL_GetError());
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Failed to get color mod : SDL erorr '%s'",
+			SDL_GetError());
+
 	if(SDL_GetTextureAlphaMod(_rawTexture.get(),
 		&rgba.a))
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Texture::getColorAlphaMod: SDL_GetTextureAlphaMod() "
-			"returned error %s", SDL_GetError());
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Failed to get alpha mod : SDL error '%s'",
+			SDL_GetError());
 
 	return rgba;
 }
@@ -111,6 +104,15 @@ Texture Texture::fromText(
 	int const textSize,
 	SDL_Color const & textColor)
 {
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
+	if (renderer == nullptr)
+		THROW(Exception, "Received nullptr 'renderer'");
+	if (textFontName.empty())
+		THROW(Exception, "Received empty 'textFontName'");
+	if (textSize <= 0)
+		THROW(Exception, "Received textSize <= 0");
+
 	Surface textSurface(Surface::fromText(ttfManager, text, textFontName, textSize, textColor));
 	return Texture::fromSurface(renderer, textSurface);
 }
@@ -119,21 +121,18 @@ Texture Texture::fromSurface(
 	SDL_Renderer * renderer,
 	Surface & surface)
 {
+	if (renderer == nullptr)
+		THROW(Exception, "Received nullptr 'renderer'");
+
 	SDL_Texture * rawTexture =
 		SDL_CreateTextureFromSurface(renderer, surface.getSurface());
 
-	if(rawTexture == nullptr)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Texture::fromSurface: SDL_CreateTextureFromSurface() "
-			"returned error '%s'",
+	if (rawTexture == nullptr)
+		THROW(Exception,
+			"Cannot instantiate SDL_Texture : SDL error '%s'",
 			SDL_GetError());
-		throw std::string(
-			"Texture::fromSurface: SDL_CreateTextureFromSurface() "
-			"returned error '" + std::string(SDL_GetError()) + "'");
-	}
-	else
-		return Texture(rawTexture);
+
+	return Texture(rawTexture);
 }
 
 Texture Texture::fromScratch(
@@ -143,6 +142,9 @@ Texture Texture::fromScratch(
 	int const width,
 	int const height)
 {
+	if (renderer == nullptr)
+		THROW(Exception, "Received nullptr 'renderer'");
+
 	SDL_Texture * rawTexture = SDL_CreateTexture(
 		renderer,
 		format,
@@ -151,14 +153,9 @@ Texture Texture::fromScratch(
 		height);
 
 	if(rawTexture == nullptr)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Texture::fromScratch: SDL_CreateTexture() returned "
-			"error '%s'", SDL_GetError());
-		throw std::string(
-			"Texture::fromScratch: SDL_CreateTexture() returned "
-			"error '" + std::string(SDL_GetError()) + "'");
-	}
-	else
-		return Texture(rawTexture);
+		THROW(Exception,
+			"Cannot instantiate SDL_Texture : SDL error '%s'",
+			SDL_GetError());
+
+	return Texture(rawTexture);
 }
