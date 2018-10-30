@@ -1,14 +1,18 @@
 #include <VBN/EngineUpdate.hpp>
+#include <VBN/Exceptions.hpp>
 
 EngineUpdate::EngineUpdate(void) : 
 	_popFlag(false),
 	_nextIGameContext(nullptr)
 {}
 
-void EngineUpdate::pushGameContext(std::shared_ptr<IGameContext> IGameContext)
+void EngineUpdate::pushGameContext(std::shared_ptr<IGameContext> gameContext)
 {
+	if (!gameContext)
+		THROW(Exception, "Received nullptr 'gameContext'");
+
 	if (!_nextIGameContext)
-		_nextIGameContext = IGameContext;
+		_nextIGameContext = gameContext;
 }
 
 void EngineUpdate::popGameContext(void)

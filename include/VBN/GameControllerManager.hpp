@@ -14,8 +14,9 @@ class GameControllerManager
 
 	public:
 		~GameControllerManager(void);
-		bool openFromDeviceIndex(unsigned const);
-		bool closeInstance(unsigned const);
+		void openFromDeviceIndex(unsigned const);
+		void closeInstance(unsigned const);
+		void logMappings(void);
 
 		SDL_Haptic * getHapticFromInstance(unsigned const);
 		SDL_GameController * getFirstController(void);

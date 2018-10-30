@@ -1,6 +1,7 @@
 #include <VBN/WindowManager.hpp>
 #include <VBN/Window.hpp>
-#include <SDL2/SDL_log.h>
+#include <VBN/Exceptions.hpp>
+#include <VBN/Logging.hpp>
 
 void WindowManager::add(
 	std::string const & name,
@@ -12,8 +13,20 @@ void WindowManager::add(
 	Uint32 rendererFlags,
 	std::shared_ptr<TrueTypeFontManager> ttfManager)
 {
-	if(title.empty() || name.empty())
-		return;
+	if (name.empty())
+		THROW(Exception, "Received empty 'name'");
+	if (title.empty())
+		THROW(Exception, "Received empty 'title'");
+	if (x <= 0)
+		THROW(Exception, "Received 'x' <= 0");
+	if (y <= 0)
+		THROW(Exception, "Received 'y' <= 0");
+	if (w <= 0)
+		THROW(Exception, "Received 'w' <= 0");
+	if (h <= 0)
+		THROW(Exception, "Received 'h' <= 0");
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
 
 	_windows.emplace(std::make_pair(name,
 		Window(title,
@@ -28,45 +41,29 @@ void WindowManager::add(
 
 Window & WindowManager::getByName(std::string const & name)
 {
-	/* Look for {name, Window} */
 	if (_windows.find(name) != _windows.end())
 		return _windows.at(name);
 	else
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "No window with name '%s'", name);
-		throw(std::string("No window with name '" + name + "'"));
-	}
+		THROW(Exception, "No window with name '%s'", name);
 }
 
 Window & WindowManager::getByAddress(SDL_Window * address)
 {
-	/* Look for {id, name} */
 	if (_labels.find(address) != _labels.end())
 	{
-		/* Look for {id, Window} */
 		try
 		{
 			getByName(_labels.at(address));
 		}
-		/* Mapping corrupted (severe) */
-		catch (std::string str)
+		catch (Exception exc)
 		{
-			SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-				"WindowManager mapping error : found '%p' in _labels "
+			THROW(Exception,
+				"Mapping error : found '%p' in _labels "
 				"but not in _windows", address);
-			throw(std::string("WindowManager mapping error : found '" +
-				std::to_string(unsigned(address)) +
-				" in _labels but not in _windows"));
 		}
 	}
-	/* No such window */
 	else
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"No window with address '%p'", address);
-		throw(std::string("No window with address '" +
-			std::to_string(unsigned(address)) + "'"));
-	}
+		THROW(Exception, "No window with address '%p'", address);
 }
 
 void WindowManager::remove(std::string const & name)
@@ -84,10 +81,5 @@ std::string WindowManager::getWindowNameByAddress(SDL_Window * address)
 	if (_labels.find(address) != _labels.end())
 		return _labels.at(address);
 	else
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"No window with address '%p'", address);
-		throw(std::string("No window with address '" +
-			std::to_string(unsigned(address)) + "'"));
-	}
+		ERROR(SDL_LOG_CATEGORY_ERROR, "No window with address '%p'", address);
 }

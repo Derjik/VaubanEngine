@@ -1,10 +1,18 @@
 #include <VBN/TrueTypeFont.hpp>
+#include <VBN/Logging.hpp>
+#include <VBN/Exceptions.hpp>
 
 TrueTypeFont::TrueTypeFont(std::string const & filePath,
-		unsigned const size,
-		unsigned const face) : _font(nullptr)
+							unsigned const size,
+							unsigned const face) :
+	_font(nullptr)
 {
-	SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
+	if (filePath.empty())
+		THROW(Exception, "Received empty 'filePath'");
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
+
+	DEBUG(SDL_LOG_CATEGORY_APPLICATION,
 		"TrueTypeFont: file %s, size %d, face %d,",
 		filePath.c_str(),
 		size,
@@ -14,31 +22,24 @@ TrueTypeFont::TrueTypeFont(std::string const & filePath,
 		TTF_OpenFontIndex(filePath.c_str(), size, face), TTFDeleter());
 
 	if(_font == nullptr)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"TrueTypeFont: TTF_OpenFontIndex returned error '%s'",
+		THROW(Exception,
+			"Cannot open font : TTF error '%s'",
 			TTF_GetError());
-		throw std::string(
-			"TrueTypeFont: TTF_OpenFontIndex returned error '"
-			+ std::string(TTF_GetError()) + "'");
-	}
-	else
-	{
-		SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION,
-			"TrueTypeFont: name %s ascent %d, "
-			"descent %d, "
-			"lineskip %d, "
-			"faces %d, "
-			"fixed width %d",
-			getFaceFamilyName().c_str(),
-			getAscent(),
-			getDescent(),
-			getLineSkip(),
-			getFaces(),
-			getIsFixedWidth());
 
-		TTF_SetFontKerning(_font.get(), 0);
-	}
+	DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+		"TrueTypeFont: name %s ascent %d, "
+		"descent %d, "
+		"lineskip %d, "
+		"faces %d, "
+		"fixed width %d",
+		getFaceFamilyName().c_str(),
+		getAscent(),
+		getDescent(),
+		getLineSkip(),
+		getFaces(),
+		getIsFixedWidth());
+
+	TTF_SetFontKerning(_font.get(), 0);
 }
 
 TrueTypeFont::TrueTypeFont(TrueTypeFont && other) : _font(std::move(other._font))
@@ -152,16 +153,10 @@ SDL_Surface * TrueTypeFont::renderSolid(std::string const & text,
 {
 	SDL_Surface * renderedText(TTF_RenderText_Solid(
 		_font.get(), text.c_str(), color));
+
 	if(renderedText == nullptr)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-				"TrueTypeFont::renderSolid: "
-				"TTF_RenderText_Solid() returned '%s'",
-				TTF_GetError());
-		throw std::string("TrueTypeFont::renderSolid: "
-				"TTF_RenderText_Solid() returned '" +
-				std::string(TTF_GetError()) + "'");
-	}
+		THROW(Exception, "Cannot render text : TTF error '%s'", TTF_GetError());
+
 	return renderedText;
 }
 

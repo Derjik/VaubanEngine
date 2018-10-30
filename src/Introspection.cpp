@@ -1,8 +1,8 @@
 #include <VBN/Introspection.hpp>
+#include <VBN/Logging.hpp>
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_audio.h>
-#include <SDL2/SDL_log.h>
 
 int Introspection::_numRenderDrivers;
 int Introspection::_numVideoDisplays;
@@ -16,7 +16,7 @@ void Introspection::videoDisplays(void)
 {
 	_numVideoDisplays = SDL_GetNumVideoDisplays();
 
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Video displays : %d",
+	INFO(SDL_LOG_CATEGORY_APPLICATION, "Video displays : %d",
 		_numVideoDisplays);
 	SDL_DisplayMode displayMode;
 	for(int displayIndex(0) ;
@@ -24,7 +24,7 @@ void Introspection::videoDisplays(void)
 		++displayIndex)
 	{
 		SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
-		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+		INFO(SDL_LOG_CATEGORY_APPLICATION,
 			"\t'%s' %dx%d@%dHz %s",
 			SDL_GetDisplayName(displayIndex),
 			displayMode.w, displayMode.h,
@@ -36,12 +36,12 @@ void Introspection::videoDisplays(void)
 void Introspection::audioDevices(void)
 {
 	_numAudioDevices = SDL_GetNumAudioDevices(0);
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+	INFO(SDL_LOG_CATEGORY_APPLICATION,
 		"Audio devices : %d", _numAudioDevices);
 	for(int deviceIndex(0) ;
 		deviceIndex < _numAudioDevices ;
 		++deviceIndex)
-		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+		INFO(SDL_LOG_CATEGORY_APPLICATION,
 			"\t'%s'", SDL_GetAudioDeviceName(deviceIndex, 0));
 }
 
@@ -51,7 +51,7 @@ void Introspection::videoDrivers(void)
 
 	_numVideoDrivers = SDL_GetNumVideoDrivers();
 	_currentVideoDriver = SDL_GetCurrentVideoDriver();
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+	INFO(SDL_LOG_CATEGORY_APPLICATION,
 		"Video drivers : %d", _numVideoDrivers);
 	for(int driverIndex(0) ;
 		driverIndex < _numVideoDrivers ;
@@ -68,7 +68,7 @@ void Introspection::videoDrivers(void)
 			prefix = "[";
 			suffix = "]";
 		}
-		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+		INFO(SDL_LOG_CATEGORY_APPLICATION,
 			" %s'%s'%s",
 			prefix.c_str(),
 			SDL_GetVideoDriver(driverIndex),
@@ -82,7 +82,7 @@ void Introspection::audioDrivers(void)
 
 	_numAudioDrivers = SDL_GetNumAudioDrivers();
 	_currentAudioDriver = SDL_GetCurrentAudioDriver();
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+	INFO(SDL_LOG_CATEGORY_APPLICATION,
 		"Audio drivers : %d", _numAudioDrivers);
 	for(int driverIndex(0) ;
 		driverIndex < _numAudioDrivers ;
@@ -99,7 +99,7 @@ void Introspection::audioDrivers(void)
 			prefix = "[";
 			suffix = "]";
 		}
-		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+		INFO(SDL_LOG_CATEGORY_APPLICATION,
 			" %s'%s'%s",
 			prefix.c_str(),
 			SDL_GetAudioDriver(driverIndex),
@@ -120,7 +120,7 @@ void Introspection::renderDriverInfo(SDL_RendererInfo const & rendererInfo)
 	if(SDL_RENDERER_TARGETTEXTURE & rendererInfo.flags)
 		flags += "T";
 
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+	INFO(SDL_LOG_CATEGORY_APPLICATION,
 		"\t'%s' [%s] [%dx%d] has %d pixel formats :",
 		rendererInfo.name,
 		flags.c_str(),
@@ -131,7 +131,7 @@ void Introspection::renderDriverInfo(SDL_RendererInfo const & rendererInfo)
 	for(int formatIndex(0) ;
 		formatIndex < rendererInfo.num_texture_formats ;
 		++formatIndex)
-		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "\t\t%s",
+		INFO(SDL_LOG_CATEGORY_APPLICATION, "\t\t%s",
 			SDL_GetPixelFormatName(
 				rendererInfo.texture_formats[formatIndex]));
 }
@@ -140,7 +140,7 @@ void Introspection::renderDrivers(void)
 {
 	_numRenderDrivers = SDL_GetNumRenderDrivers();
 
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+	INFO(SDL_LOG_CATEGORY_APPLICATION,
 		"Render drivers : %d", _numRenderDrivers);
 	for(int driverIndex(0) ;
 		driverIndex < _numRenderDrivers ;

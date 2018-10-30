@@ -1,10 +1,15 @@
 #include <SDL2/SDL_image.h>
 #include <VBN/TrueTypeFontManager.hpp>
 #include <VBN/Surface.hpp>
+#include <VBN/Logging.hpp>
+#include <VBN/Exceptions.hpp>
 
 
 Surface::Surface(SDL_Surface * rawSurface) : _rawSurface(rawSurface)
-{}
+{
+	if (rawSurface == nullptr)
+		THROW(Exception, "Received nullptr 'rawSurface'");
+}
 
 Surface::Surface(Surface && other) : _rawSurface(std::move(other._rawSurface))
 {}
@@ -27,25 +32,30 @@ Surface Surface::fromText(
 			int const size,
 			SDL_Color const & color)
 {
-	TrueTypeFont & font = ttfManager->getFont(fontName, size);
-	return Surface(font.renderSolid(text, color));
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
+	if (fontName.empty())
+		THROW(Exception, "Received empty 'fontName'");
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
+
+	return Surface(ttfManager->getFont(fontName, size)
+					.renderSolid(text, color));
 }
 
 Surface Surface::fromImage(std::string const & path)
 {
+	if (path.empty())
+		THROW(Exception, "Received empty 'path'");
+
 	SDL_Surface * surface(IMG_Load(path.c_str()));
 
 	if(surface == nullptr)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Surface::fromImage: IMG_Load returned error '%s'",
+		THROW(Exception,
+			"Cannot instantiate SDL_Surface : IMG error '%s'",
 			IMG_GetError());
-		throw std::string(
-			"Surface::fromImage: IMG_Load returned error '"
-			+ std::string(IMG_GetError()) + "'");
-	}
-	else
-		return Surface(surface);
+
+	return Surface(surface);
 }
 
 Surface Surface::fromScratch(int const width,
@@ -68,26 +78,16 @@ Surface Surface::fromScratch(int const width,
 						rMask, gMask, bMask, aMask));
 
 	if(surface == nullptr)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Surface::fromScratch: SDL_CreateRGBSurface returned "
-			"error '%s'", SDL_GetError());
-		throw std::string(
-			"Surface::fromScratch: SDL_CreateRGBSurface returned "
-			"error '" + std::string(SDL_GetError()) + "'");
-	}
+		THROW(Exception,
+			"Cannot instantiate SDL_Surface : SDL error '%s'",
+			SDL_GetError());
 
-	if (SDL_SetColorKey(surface,
-		SDL_TRUE,
-		SDL_MapRGBA(surface->format, 0, 0, 0, 0)))
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-			"Surface::fromScratch: SDL_SetColorKey returned "
-			"error '%s'", SDL_GetError());
-		throw std::string(
-			"Surface::fromScratch: SDL_SetColorKey returned "
-			"error '" + std::string(SDL_GetError()) + "'");
-	}
+	Uint32 colorKey(SDL_MapRGBA(surface->format, 0, 0, 0, 0));
+
+	if (SDL_SetColorKey(surface, SDL_TRUE, colorKey))
+		THROW(Exception,
+			"Failed to set colorkey : SDL error '%s'",
+			SDL_GetError());
 
 	return Surface(surface);
 }
