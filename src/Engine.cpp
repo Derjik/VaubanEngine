@@ -1,8 +1,8 @@
 #include <VBN/Engine.hpp>
 #include <VBN/EngineUpdate.hpp>
 #include <VBN/IGameContext.hpp>
-#include <SDL2/SDL_log.h>
 #include <SDL2/SDL_timer.h>
+#include <VBN/Logging.hpp>
 #include <numeric>
 
 #define MS_PER_FRAME_STACK_SIZE 40
@@ -25,7 +25,7 @@ void Engine::run(float const gameTicksPerMillisecond)
 
 	std::shared_ptr<EngineUpdate> update(new EngineUpdate);
 
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+	INFO(SDL_LOG_CATEGORY_APPLICATION,
 			"Nominal frame frameDuration : %d ms",
 			nominalFrameDuration);
 
@@ -54,7 +54,7 @@ void Engine::run(float const gameTicksPerMillisecond)
 			SDL_Delay(unusedTime);
 		else if (unusedTime < 0)
 		{
-			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+			WARNING(SDL_LOG_CATEGORY_APPLICATION,
 				"Frame was too long to prepare : %d ms",
 				frameDuration);
 			_stack.back()->elapse((frameDuration - nominalFrameDuration) * gameTicksPerMillisecond);

@@ -10,7 +10,7 @@
 		SDL_LogError(category, "%s:%d: " format, __func__, __LINE__, __VA_ARGS__)
 
 #define WARNING(category, format, ...) \
-		SDL_LogWarning(category, "%s:%d: " format, __func__, __LINE__, __VA_ARGS__)
+		SDL_LogWarn(category, "%s:%d: " format, __func__, __LINE__, __VA_ARGS__)
 
 #define INFO(category, format, ...) \
 		SDL_LogInfo(category, "%s:%d: " format, __func__, __LINE__, __VA_ARGS__)
