@@ -40,7 +40,8 @@ void Engine::run(float const gameTicksPerMillisecond)
 			_stack.back()->handleEvent(ev, update);
 
 		/* Time */
-		_stack.back()->elapse(nominalFrameDuration * gameTicksPerMillisecond);
+		_stack.back()->elapse(nominalFrameDuration * gameTicksPerMillisecond,
+			update);
 
 		/* Output */
 		_stack.back()->display();
@@ -57,7 +58,9 @@ void Engine::run(float const gameTicksPerMillisecond)
 			WARNING(SDL_LOG_CATEGORY_APPLICATION,
 				"Frame was too long to prepare : %d ms",
 				frameDuration);
-			_stack.back()->elapse((frameDuration - nominalFrameDuration) * gameTicksPerMillisecond);
+			_stack.back()->elapse(
+				-unusedTime * gameTicksPerMillisecond,
+				update);
 		}
 /* ----- End chrono correction */
 
