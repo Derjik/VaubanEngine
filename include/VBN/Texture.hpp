@@ -12,6 +12,8 @@ class Texture
 		struct SDLTextureDeleter { void operator() (SDL_Texture * texture) {} };
 		std::unique_ptr<SDL_Texture, SDLTextureDeleter> _rawTexture;
 
+		std::map<std::string, std::unique_ptr<SDL_Rect>> _clips;
+
 		Uint32 _pixelFormat;
 		int _access;
 		int _width;
@@ -29,6 +31,11 @@ class Texture
 		int height(void) const;
 		int access(void) const;
 		Uint32 pixelFormat(void) const;
+
+		void addClip(std::string const & clipName,
+			SDL_Rect const & clip);
+
+		SDL_Rect * getClip(std::string const & clipName);
 
 		void setColorAlphaMod(SDL_Color const & color);
 		SDL_Color getColorAlphaMod(void) const;

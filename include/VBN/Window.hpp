@@ -63,6 +63,10 @@ class Window
 				int const size,
 				SDL_Color const & color);
 
+		bool addImageTexture(
+			std::string const & textureName,
+			std::string const & path);
+
 		bool removeTexture(std::string const & name);
 
 		void printText(std::string const & text,

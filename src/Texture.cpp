@@ -159,3 +159,27 @@ Texture Texture::fromScratch(
 
 	return Texture(rawTexture);
 }
+
+void Texture::addClip(std::string const & clipName,
+	SDL_Rect const & clip)
+{
+	if(_clips.find(clipName) != _clips.end())
+		THROW(Exception,
+			"Cannot override existing clip '%s'",
+			clipName);
+
+	_clips.emplace(make_pair(
+		clipName,
+		std::unique_ptr<SDL_Rect>(
+			new SDL_Rect{clip.x, clip.y, clip.w, clip.h})));
+}
+
+SDL_Rect * Texture::getClip(std::string const & clipName)
+{
+	auto clipIterator = _clips.find(clipName);
+
+	if (clipIterator == _clips.end())
+		THROW(Exception, "Cannot find clip '%s'", clipName);
+
+	return _clips.at(clipName).get();
+}

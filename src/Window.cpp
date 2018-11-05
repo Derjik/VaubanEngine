@@ -189,6 +189,20 @@ bool Window::addTextTexture(std::string const & textureName,
 	return true;
 }
 
+bool Window::addImageTexture(std::string const & textureName,
+	std::string const & path)
+{
+	/* Ensure uniqueness of textures */
+	if(_textures.find(textureName) != _textures.end())
+		return false;
+
+	Surface image(Surface::fromImage(path));
+
+	_textures.emplace(
+		make_pair(textureName,
+			Texture::fromSurface(_renderer.get(), image)));
+}
+
 Texture & Window::getTexture(std::string const & name)
 {
 	if(_textures.find(name) == _textures.end())
