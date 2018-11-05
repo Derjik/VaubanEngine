@@ -1,4 +1,4 @@
-#include "EventDispatcher.hpp"
+#include <VBN/EventDispatcher.hpp>
 #include <VBN/Logging.hpp>
 
 EventDispatcher::EventDispatcher(

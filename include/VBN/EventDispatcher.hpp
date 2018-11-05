@@ -1,7 +1,7 @@
 #ifndef EVENT_DISPATCHER_HPP_INCLUDED
 #define EVENT_DISPATCHER_HPP_INCLUDED
 
-#include "IEventHandler.hpp"
+#include <VBN/IEventHandler.hpp>
 #include <memory>
 
 class EventDispatcher : public IEventHandler

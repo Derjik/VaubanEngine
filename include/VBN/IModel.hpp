@@ -1,6 +1,7 @@
 #ifndef I_MODEL_HPP_INCLUDED
 #define I_MODEL_HPP_INCLUDED
 
+#include <memory>
 #include <SDL2/SDL_types.h>
 
 class EngineUpdate;
