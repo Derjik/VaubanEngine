@@ -4,6 +4,8 @@
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
+#define DEFAULT_TEXTURE "default"
+
 Window::Window(std::string const & title,
 	int xPosition, int yPosition,
 	int windowWidth, int windowHeight,
@@ -24,29 +26,21 @@ Window::Window(std::string const & title,
 						windowWidth, windowHeight,
 						windowFlags),
 		SDLWindowDeleter());
-
 	if(_window == nullptr)
-	{
-		CRITICAL(SDL_LOG_CATEGORY_ERROR,
-			"SDL_CreateWindow() returned error '%s'",
+		THROW(Exception,
+			"Cannot instantiate SDL_Window : SDL error '%s'",
 			SDL_GetError());
-		THROW(Exception, "Window: SDL_CreateWindow() returned error '%s'", SDL_GetError());
-	}
 
 	_renderer = std::unique_ptr<SDL_Renderer, SDLRendererDeleter>(
 		SDL_CreateRenderer(_window.get(), -1, rendererFlags),
 		SDLRendererDeleter());
 	if(_renderer == nullptr)
-	{
-		CRITICAL(SDL_LOG_CATEGORY_ERROR,
-			"Window: SDL_CreateRenderer() returned error '%s'",
+		THROW(Exception,
+			"Cannot instantiate SDL_Renderer : SDL error '%s'",
 			SDL_GetError());
-		THROW(Exception, "Window: SDL_CreateRenderer() returned error '%s'",
-			SDL_GetError());
-	}
 
 	_textures.emplace(std::make_pair(
-		std::string("default"),
+		std::string(DEFAULT_TEXTURE),
 		Texture::fromScratch(
 			_renderer.get(),
 			SDL_PIXELFORMAT_RGBA32,
@@ -169,32 +163,39 @@ void Window::setBlendMode(SDL_BlendMode const & blendMode)
 			SDL_GetError());
 }
 
-bool Window::addTextTexture(std::string const & textureName,
+void Window::addTextTexture(std::string const & textureName,
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			std::string const & fontName,
 			std::string const & text,
 			int const size,
 			SDL_Color const & color)
 {
-	/* Ensure uniqueness of textures */
 	if(_textures.find(textureName) != _textures.end())
-		return false;
+		THROW(Exception,
+			"Cannot override existing texture '%s'",
+			textureName);
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
+	if (fontName.empty())
+		THROW(Exception, "Received empty 'fontName'");
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
 
-	/* Add to mappings */
 	_textures.emplace(
 		make_pair(textureName,
 			Texture::fromText(ttfManager, _renderer.get(),
 				text, fontName, size, color)));
-
-	return true;
 }
 
-bool Window::addImageTexture(std::string const & textureName,
+void Window::addImageTexture(std::string const & textureName,
 	std::string const & path)
 {
-	/* Ensure uniqueness of textures */
-	if(_textures.find(textureName) != _textures.end())
-		return false;
+	if (_textures.find(textureName) != _textures.end())
+		THROW(Exception,
+			"Cannot override existing texture '%s'",
+			textureName);
+	if (path.empty())
+		THROW(Exception, "Received empty 'path'");
 
 	Surface image(Surface::fromImage(path));
 
@@ -211,32 +212,24 @@ Texture & Window::getTexture(std::string const & name)
 			"Window::getTexture: No texture named '%s'",
 			name.c_str());
 
-		// TODO : add default check
-		return _textures.at("default");
+		return _textures.at(DEFAULT_TEXTURE);
 	}
 	else
 		return _textures.at(name);
 }
 
-bool Window::removeTexture(std::string const & name)
+void Window::removeTexture(std::string const & name)
 {
 	if (name == std::string("default"))
-	{
-		ERROR(SDL_LOG_CATEGORY_ERROR, "Cannot remove the default texture");
-		return false;
-	}
+		THROW(Exception, "Cannot remove the default texture");
 
 	auto iterator = _textures.find(name);
 	if(iterator == _textures.end())
-	{
 		ERROR(SDL_LOG_CATEGORY_RENDER,
 			"Cannot remove texture '%s' : not found in mappings",
 			name.c_str());
-		return false;
-	}
-
-	_textures.erase(name);
-	return true;
+	else
+		_textures.erase(name);
 }
 
 void Window::printText(std::string const & text,
@@ -245,6 +238,11 @@ void Window::printText(std::string const & text,
 		SDL_Color const & color,
 		SDL_Rect const & destination)
 {
+	if (fontName.empty())
+		THROW(Exception, "Received empty 'fontName'");
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
+
 	BitmapFont & font = _bitmapFontManager->getFont(fontName, size);
 	font.renderText(text, color, destination, _renderer.get());
 }

@@ -55,7 +55,7 @@ class Window
 		void toggleFullscreen(void);
 		void setBlendMode(SDL_BlendMode const & blendMode);
 
-		bool addTextTexture(
+		void addTextTexture(
 				std::string const & textureName,
 				std::shared_ptr<TrueTypeFontManager> ttfManager,
 				std::string const & fontName,
@@ -63,11 +63,11 @@ class Window
 				int const size,
 				SDL_Color const & color);
 
-		bool addImageTexture(
+		void addImageTexture(
 			std::string const & textureName,
 			std::string const & path);
 
-		bool removeTexture(std::string const & name);
+		void removeTexture(std::string const & name);
 
 		void printText(std::string const & text,
 				std::string const & fontName,
