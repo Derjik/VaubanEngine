@@ -22,24 +22,28 @@ class Texture
 		Texture(SDL_Texture * rawTexture);
 
 	public:
-		Texture(Texture const & other) = delete;
+		/* Allow move constructor and affectation only */
 		Texture(Texture && other);
 		Texture & operator = (Texture && other);
+		Texture(Texture const & other) = delete;
 
-		SDL_Texture * getRawTexture(void);
-		int width(void) const;
-		int height(void) const;
-		int access(void) const;
-		Uint32 pixelFormat(void) const;
+		/* Intrinsic and invariable attributes */
+		SDL_Texture * getSDLTexture(void);
+		int getWidth(void) const;
+		int getHeight(void) const;
+		int getAccess(void) const;
+		Uint32 getPixelFormat(void) const;
 
+		/* Clips used for sprite rendering */
 		void addClip(std::string const & clipName,
 			SDL_Rect const & clip);
-
 		SDL_Rect * getClip(std::string const & clipName);
 
+		/* Alpha modulation */
 		void setColorAlphaMod(SDL_Color const & color);
 		SDL_Color getColorAlphaMod(void) const;
 
+		/* Factories */
 		static Texture fromText(
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			SDL_Renderer * renderer,
@@ -47,11 +51,9 @@ class Texture
 			std::string const & textFontName,
 			int const textSize,
 			SDL_Color const & textColor);
-
 		static Texture fromSurface(
 			SDL_Renderer * renderer,
 			Surface & surface);
-
 		static Texture fromScratch(
 			SDL_Renderer * renderer,
 			Uint32 const format,

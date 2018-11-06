@@ -1,6 +1,5 @@
 #include <VBN/Window.hpp>
 #include <VBN/Introspection.hpp>
-#include <VBN/BitmapFontManager.hpp>
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
@@ -202,6 +201,11 @@ void Window::addImageTexture(std::string const & textureName,
 	_textures.emplace(
 		make_pair(textureName,
 			Texture::fromSurface(_renderer.get(), image)));
+}
+
+bool Window::hasTexture(std::string const & name)
+{
+	return (_textures.find(name) != _textures.end());
 }
 
 Texture & Window::getTexture(std::string const & name)

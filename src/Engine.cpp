@@ -40,7 +40,8 @@ void Engine::run(float const gameTicksPerMillisecond)
 			_stack.back()->handleEvent(ev, update);
 
 		/* Time */
-		_stack.back()->elapse(nominalFrameDuration * gameTicksPerMillisecond,
+		_stack.back()->elapse(
+			(float)(nominalFrameDuration) * gameTicksPerMillisecond,
 			update);
 
 		/* Output */
@@ -59,7 +60,7 @@ void Engine::run(float const gameTicksPerMillisecond)
 				"Frame was too long to prepare : %d ms",
 				frameDuration);
 			_stack.back()->elapse(
-				-unusedTime * gameTicksPerMillisecond,
+				(float)(-unusedTime) * gameTicksPerMillisecond,
 				update);
 		}
 /* ----- End chrono correction */

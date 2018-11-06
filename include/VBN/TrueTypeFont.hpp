@@ -30,7 +30,6 @@ class TrueTypeFont
 			unsigned const face = 0);
 		TrueTypeFont(TrueTypeFont &&other);
 		TrueTypeFont(TrueTypeFont const &other) = delete;
-		TrueTypeFont(TrueTypeFont &other) = delete;
 		~TrueTypeFont();
 
 		TTF_Font const * getFont(void) const;

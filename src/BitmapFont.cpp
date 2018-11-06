@@ -236,7 +236,7 @@ void BitmapFont::renderText(std::string const & text,
 						_lineSkip};
 
 			error |= (SDL_RenderCopy(renderer,
-						_texture.getRawTexture(),
+						_texture.getSDLTexture(),
 						&source,
 						&glyphDest) != 0);
 
@@ -257,9 +257,9 @@ void BitmapFont::renderDebug(SDL_Renderer * renderer,
 				int const xDest,
 				int const yDest)
 {
-	SDL_Rect dest{xDest, yDest, _texture.width(), _texture.height()};
+	SDL_Rect dest{xDest, yDest, _texture.getWidth(), _texture.getHeight()};
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderCopy(renderer, _texture.getRawTexture(), nullptr, &dest);
+	SDL_RenderCopy(renderer, _texture.getSDLTexture(), nullptr, &dest);
 
 	SDL_SetRenderDrawColor(renderer, 255, 69, 0, 255);
 	for(auto rect : _clips)

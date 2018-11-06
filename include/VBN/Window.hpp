@@ -49,23 +49,24 @@ class Window
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
 
 		Window(Window const & other) = delete;
-		Window(Window & other) = delete;
 		Window(Window && other);
 
 		void toggleFullscreen(void);
 		void setBlendMode(SDL_BlendMode const & blendMode);
 
 		void addTextTexture(
-				std::string const & textureName,
-				std::shared_ptr<TrueTypeFontManager> ttfManager,
-				std::string const & fontName,
-				std::string const & text,
-				int const size,
-				SDL_Color const & color);
+			std::string const & name,
+			std::shared_ptr<TrueTypeFontManager> ttfManager,
+			std::string const & fontName,
+			std::string const & text,
+			int const size,
+			SDL_Color const & color);
 
 		void addImageTexture(
-			std::string const & textureName,
+			std::string const & name,
 			std::string const & path);
+
+		bool hasTexture(std::string const & name);
 
 		void removeTexture(std::string const & name);
 

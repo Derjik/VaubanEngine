@@ -22,6 +22,7 @@ Texture::Texture(SDL_Texture * rawTexture) :
 
 Texture::Texture(Texture && other) :
 	_rawTexture(std::move(other._rawTexture)),
+	_clips(std::move(other._clips)),
 	_pixelFormat(std::move(other._pixelFormat)),
 	_access(std::move(other._access)),
 	_width(std::move(other._width)),
@@ -31,6 +32,7 @@ Texture::Texture(Texture && other) :
 Texture & Texture::operator=(Texture && other)
 {
 	this->_rawTexture = std::move(other._rawTexture);
+	this->_clips = std::move(other._clips);
 	this->_pixelFormat = std::move(other._pixelFormat);
 	this->_access = std::move(other._access);
 	this->_width = std::move(other._width);
@@ -39,27 +41,27 @@ Texture & Texture::operator=(Texture && other)
 	return (*this);
 }
 
-SDL_Texture * Texture::getRawTexture(void)
+SDL_Texture * Texture::getSDLTexture(void)
 {
 	return _rawTexture.get();
 }
 
-int Texture::width(void) const
+int Texture::getWidth(void) const
 {
 	return _width;
 }
 
-int Texture::height(void) const
+int Texture::getHeight(void) const
 {
 	return _height;
 }
 
-int Texture::access(void) const
+int Texture::getAccess(void) const
 {
 	return _access;
 }
 
-Uint32 Texture::pixelFormat(void) const
+Uint32 Texture::getPixelFormat(void) const
 {
 	return _pixelFormat;
 }
@@ -144,6 +146,10 @@ Texture Texture::fromScratch(
 {
 	if (renderer == nullptr)
 		THROW(Exception, "Received nullptr 'renderer'");
+	if (width <= 0)
+		THROW(Exception, "Received 'width' <= 0");
+	if (height <= 0)
+		THROW(Exception, "Received 'height' <= 0");
 
 	SDL_Texture * rawTexture = SDL_CreateTexture(
 		renderer,
@@ -160,26 +166,31 @@ Texture Texture::fromScratch(
 	return Texture(rawTexture);
 }
 
-void Texture::addClip(std::string const & clipName,
+void Texture::addClip(std::string const & name,
 	SDL_Rect const & clip)
 {
-	if(_clips.find(clipName) != _clips.end())
+	if (name.empty())
+		THROW(Exception, "Received empty 'name'");
+	if(_clips.find(name) != _clips.end())
 		THROW(Exception,
 			"Cannot override existing clip '%s'",
-			clipName);
+			name);
 
 	_clips.emplace(make_pair(
-		clipName,
+		name,
 		std::unique_ptr<SDL_Rect>(
 			new SDL_Rect{clip.x, clip.y, clip.w, clip.h})));
 }
 
-SDL_Rect * Texture::getClip(std::string const & clipName)
+SDL_Rect * Texture::getClip(std::string const & name)
 {
-	auto clipIterator = _clips.find(clipName);
+	if (name.empty())
+		THROW(Exception, "Received empty 'name'");
+
+	auto clipIterator = _clips.find(name);
 
 	if (clipIterator == _clips.end())
-		THROW(Exception, "Cannot find clip '%s'", clipName);
+		THROW(Exception, "Cannot find clip '%s'", name);
 
-	return _clips.at(clipName).get();
+	return _clips.at(name).get();
 }
