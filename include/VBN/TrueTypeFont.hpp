@@ -10,8 +10,7 @@
 class TrueTypeFont
 {
 	private:
-		struct TTFDeleter { void operator () (TTF_Font * font) const; };
-		std::unique_ptr<TTF_Font, TTFDeleter> _font;
+		std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> _font;
 
 	public:
 		struct GlyphMetrics

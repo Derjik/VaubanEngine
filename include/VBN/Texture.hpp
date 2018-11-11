@@ -9,8 +9,7 @@
 class Texture
 {
 	private:
-		struct SDLTextureDeleter { void operator() (SDL_Texture * texture) {} };
-		std::unique_ptr<SDL_Texture, SDLTextureDeleter> _rawTexture;
+		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> _rawTexture;
 
 		std::map<std::string, std::unique_ptr<SDL_Rect>> _clips;
 

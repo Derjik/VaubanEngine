@@ -2,24 +2,26 @@
 #define GAME_CONTROLLER_MANAGER_HPP_INCLUDED
 
 #include <map>
-#include <SDL2/SDL_haptic.h>
-#include <SDL2/SDL_gamecontroller.h>
+#include <VBN/GameController.hpp>
 
 class GameControllerManager
 {
 	private:
-		std::map<unsigned, unsigned> _deviceToInstance;
-		std::map<unsigned, unsigned> _instanceToDevice;
-		std::map<unsigned, SDL_Haptic*> _instanceToHaptic;
+		std::map<int, SDL_JoystickID> _deviceToInstance;
+		std::map<SDL_JoystickID, int> _instanceToDevice;
+		std::map<int, GameController> _controllers;
+
+		void logMappings(void);
 
 	public:
 		~GameControllerManager(void);
-		void openFromDeviceIndex(unsigned const);
-		void closeInstance(unsigned const);
-		void logMappings(void);
 
-		SDL_Haptic * getHapticFromInstance(unsigned const);
-		SDL_GameController * getFirstController(void);
+		void openFromDeviceIndex(int const);
+		void closeInstance(SDL_JoystickID const);
+
+		int getNumAvailableControllers(void) const;
+		GameController * getControllerFromDeviceID(int deviceID);
+		GameController * getControllerFromInstanceID(SDL_JoystickID instanceID);
 };
 
 #endif // GAME_CONTROLLER_MANAGER_HPP_INCLUDED

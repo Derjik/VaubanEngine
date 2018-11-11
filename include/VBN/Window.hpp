@@ -22,11 +22,8 @@ class Window
 		};
 
 	private:
-		struct SDLWindowDeleter { void operator () (SDL_Window * window) const; };
-		std::unique_ptr<SDL_Window, SDLWindowDeleter> _window;
-
-		struct SDLRendererDeleter { void operator () (SDL_Renderer * renderer) const; };
-		std::unique_ptr<SDL_Renderer, SDLRendererDeleter> _renderer;
+		std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> _window;
+		std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> _renderer;
 
 		RatioType _ratioType;
 		unsigned _canvasWidth;
@@ -50,6 +47,7 @@ class Window
 
 		Window(Window const & other) = delete;
 		Window(Window && other);
+		Window & operator = (Window const &) = delete;
 
 		void toggleFullscreen(void);
 		void setBlendMode(SDL_BlendMode const & blendMode);

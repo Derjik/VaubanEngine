@@ -4,7 +4,7 @@
 #include <VBN/Exceptions.hpp>
 
 Texture::Texture(SDL_Texture * rawTexture) :
-	_rawTexture(rawTexture, SDLTextureDeleter()),
+	_rawTexture(rawTexture, &SDL_DestroyTexture),
 	_pixelFormat(0),
 	_access(0),
 	_width(0),

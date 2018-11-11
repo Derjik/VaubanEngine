@@ -12,27 +12,27 @@ Window::Window(std::string const & title,
 	Uint32 windowFlags,
 	Uint32 rendererFlags,
 	std::shared_ptr<TrueTypeFontManager> ttfManager) :
-	_window(nullptr),
+	_window(nullptr, &SDL_DestroyWindow),
 	_ratioType(ratioType),
 	_canvasWidth(windowWidth),
 	_canvasHeight(windowHeight),
-	_renderer(nullptr),
+	_renderer(nullptr, &SDL_DestroyRenderer),
 	_bitmapFontManager(nullptr)
 {
-	_window = std::unique_ptr<SDL_Window, SDLWindowDeleter>(
+	_window = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>(
 		SDL_CreateWindow(title.c_str(),
 						xPosition, yPosition,
 						windowWidth, windowHeight,
 						windowFlags),
-		SDLWindowDeleter());
+		&SDL_DestroyWindow);
 	if(_window == nullptr)
 		THROW(Exception,
 			"Cannot instantiate SDL_Window : SDL error '%s'",
 			SDL_GetError());
 
-	_renderer = std::unique_ptr<SDL_Renderer, SDLRendererDeleter>(
+	_renderer = std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)>(
 		SDL_CreateRenderer(_window.get(), -1, rendererFlags),
-		SDLRendererDeleter());
+		&SDL_DestroyRenderer);
 	if(_renderer == nullptr)
 		THROW(Exception,
 			"Cannot instantiate SDL_Renderer : SDL error '%s'",
@@ -62,12 +62,12 @@ Window::Window(std::string const & title,
 
 Window::Window(Window && other) :
 	_window(std::move(other._window)),
+	_renderer(std::move(other._renderer)),
 	_ratioType(std::move(other._ratioType)),
 	_canvasWidth(std::move(other._canvasWidth)),
 	_canvasHeight(std::move(other._canvasHeight)),
-	_renderer(std::move(other._renderer)),
-	_textures(std::move(other._textures)),
-	_bitmapFontManager(std::move(other._bitmapFontManager))
+	_bitmapFontManager(std::move(other._bitmapFontManager)),
+	_textures(std::move(other._textures))
 {}
 
 void Window::applyRatioTypeSettings(void)
@@ -286,16 +286,6 @@ void Window::printDebugText(std::string const & fontName,
 {
 	BitmapFont & font = _bitmapFontManager->getFont(fontName, size);
 	font.renderDebug(_renderer.get(), xDest, yDest);
-}
-
-void Window::SDLWindowDeleter::operator()(SDL_Window * window) const
-{
-	SDL_DestroyWindow(window);
-}
-
-void Window::SDLRendererDeleter::operator()(SDL_Renderer * renderer) const
-{
-	SDL_DestroyRenderer(renderer);
 }
 
 Uint32 Window::getId(void)

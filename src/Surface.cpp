@@ -5,7 +5,7 @@
 #include <VBN/Exceptions.hpp>
 
 
-Surface::Surface(SDL_Surface * rawSurface) : _rawSurface(rawSurface)
+Surface::Surface(SDL_Surface * rawSurface) : _rawSurface(rawSurface, &SDL_FreeSurface)
 {
 	if (rawSurface == nullptr)
 		THROW(Exception, "Received nullptr 'rawSurface'");
@@ -90,9 +90,4 @@ Surface Surface::fromScratch(int const width,
 			SDL_GetError());
 
 	return Surface(surface);
-}
-
-void SDLSurfaceDeleter::operator() (SDL_Surface * surface) const
-{
-	SDL_FreeSurface(surface);
 }

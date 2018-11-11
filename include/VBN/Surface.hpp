@@ -6,12 +6,10 @@
 #include <SDL2/SDL_surface.h>
 #include <VBN/TrueTypeFontManager.hpp>
 
-struct SDLSurfaceDeleter { void operator () (SDL_Surface * surface) const; };
-
 class Surface
 {
 	private:
-		std::unique_ptr<SDL_Surface, SDLSurfaceDeleter> _rawSurface;
+		std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> _rawSurface;
 		Surface(SDL_Surface * rawSurface);
 
 	public:

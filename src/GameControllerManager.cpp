@@ -1,81 +1,19 @@
 #include <VBN/GameControllerManager.hpp>
 #include <VBN/Logging.hpp>
+#include <VBN/Exceptions.hpp>
 #include <string>
 
-GameControllerManager::~GameControllerManager(void)
+void GameControllerManager::openFromDeviceIndex(int const deviceIndex)
 {
-	VERBOSE(SDL_LOG_CATEGORY_INPUT, "Cleaning controllers");
+	GameController controller(deviceIndex);
+	SDL_JoystickID instanceId = controller.getInstanceId();
 
-	for(auto & gcPair : _deviceToInstance)
-		SDL_GameControllerClose(SDL_GameControllerFromInstanceID(gcPair.second));
+	auto newPair = _controllers.emplace(
+		deviceIndex,
+		std::move(controller));
 
-	_deviceToInstance.clear();
-	_instanceToDevice.clear();
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT, "Done cleaning controllers");
-}
-
-void GameControllerManager::openFromDeviceIndex(unsigned const index)
-{
-	INFO(SDL_LOG_CATEGORY_INPUT, "Opening device #%d", index);
-
-	SDL_GameController * newGC = SDL_GameControllerOpen(index);
-	if (newGC == nullptr)
-	{
-		ERROR(SDL_LOG_CATEGORY_INPUT,
-			"Could not open device #%d : SDL error '%s'",
-			index, SDL_GetError());
-		return;
-	}
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT,
-		"Done opening controller, retrieving joystick");
-
-	SDL_Joystick * newJoystick = SDL_GameControllerGetJoystick(newGC);
-	if (newJoystick == nullptr)
-	{
-		ERROR(SDL_LOG_CATEGORY_ERROR,
-			"Could not retrieve joystick from device #%d : SDL error '%s'",
-			index, SDL_GetError());
-		return;
-	}
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT,
-		"Done retrieving joystick, retrieving instance ID");
-
-	unsigned instanceId = SDL_JoystickInstanceID(newJoystick);
-	if (instanceId < 0)
-	{
-		ERROR(SDL_LOG_CATEGORY_ERROR,
-			"Bad instance ID returned by SDL_JoystickInstanceID : "
-			"SDL error '%s'",
-			SDL_GetError());
-		return;
-	}
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT,
-		"Done retrieving instance ID, looking for haptics");
-
-	if (SDL_JoystickIsHaptic(newJoystick))
-	{
-		SDL_Haptic * newHaptic = SDL_HapticOpenFromJoystick(newJoystick);
-		_instanceToHaptic.insert(std::make_pair(instanceId, newHaptic));
-
-		if (SDL_HapticRumbleSupported(newHaptic) == SDL_TRUE)
-			if (SDL_HapticRumbleInit(newHaptic) < 0)
-				ERROR(SDL_LOG_CATEGORY_ERROR,
-					"Error while initializing haptic: SDL error '%s'",
-					SDL_GetError());
-	}
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT,
-		"Done looking for haptics, adding to mappings");
-
-	_deviceToInstance.insert(std::make_pair(index, instanceId));
-	_instanceToDevice.insert(std::make_pair(instanceId, index));
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT,
-		"Done adding to mappings, printing mappings");
+	_deviceToInstance.insert(std::make_pair(deviceIndex, instanceId));
+	_instanceToDevice.insert(std::make_pair(instanceId, deviceIndex));
 
 	logMappings();
 }
@@ -83,78 +21,87 @@ void GameControllerManager::openFromDeviceIndex(unsigned const index)
 void GameControllerManager::logMappings(void)
 {
 	INFO(SDL_LOG_CATEGORY_INPUT, "Current mappings :");
-	INFO(SDL_LOG_CATEGORY_INPUT, "#Device\t@Instance\tName\t\t\tAddress");
+	INFO(SDL_LOG_CATEGORY_INPUT, "#Device\t@Instance\tAddress\t\t\tName");
 
-	for(auto const & p : _deviceToInstance)
+	for(auto & p : _controllers)
 	{
-		SDL_GameController * gc = SDL_GameControllerFromInstanceID(p.second);
-
-		INFO(SDL_LOG_CATEGORY_INPUT, "%d\t%d\t\t%s\t%p",
-				p.first,
-				p.second,
-				SDL_GameControllerName(gc),
-				gc);
+		INFO(SDL_LOG_CATEGORY_INPUT,
+			"%d\t%d\t%p\t%s",
+			p.second.getDeviceIndex(),
+			p.second.getInstanceId(),
+			p.second.getSDLGameController(),
+			SDL_GameControllerName(p.second.getSDLGameController()));
 	}
 }
 
-void GameControllerManager::closeInstance(unsigned const instance)
+void GameControllerManager::closeInstance(SDL_JoystickID const instanceId)
 {
-	INFO(SDL_LOG_CATEGORY_INPUT, "Closing instance @%d", instance);
-
-	auto deviceIterator = _instanceToDevice.find(instance);
-	if (deviceIterator == _instanceToDevice.end())
+	INFO(SDL_LOG_CATEGORY_INPUT, "Closing instance @%d", instanceId);
+	auto mappingIterator = _instanceToDevice.find(instanceId);
+	if (mappingIterator != _instanceToDevice.end())
 	{
-		ERROR(SDL_LOG_CATEGORY_ERROR,
-			"Cannot close instance @%d : not found in mappings",
-			instance);
-		return;
+		auto deviceIterator = _instanceToDevice.find(instanceId);
+		if (deviceIterator == _instanceToDevice.end())
+			ERROR(SDL_LOG_CATEGORY_ERROR,
+				"No instance @%d in _instanceToDevice map",
+				instanceId);
+
+		SDL_JoystickID deviceId = deviceIterator->second;
+
+		if (_controllers.find(instanceId) == _controllers.end())
+			ERROR(SDL_LOG_CATEGORY_ERROR,
+				"No instance @%d in _controllers map",
+				instanceId);
+
+		_controllers.erase(_instanceToDevice.at(instanceId));
+
+		if (_deviceToInstance.find(deviceId) == _deviceToInstance.end())
+			ERROR(SDL_LOG_CATEGORY_ERROR,
+				"No device #%d found in _deviceToInstance map",
+				deviceId);
+
+		_deviceToInstance.erase(deviceId);
+		_instanceToDevice.erase(instanceId);
 	}
-
-	SDL_GameController * gcToClose = SDL_GameControllerFromInstanceID(instance);
-	if (gcToClose == nullptr)
-	{
-		ERROR(SDL_LOG_CATEGORY_ERROR,
-			"Cannot close instance @%d : SDL error '%s'",
-			instance, SDL_GetError());
-		return;
-	}
-
-	auto hapticIterator = _instanceToHaptic.find(instance);
-	if (hapticIterator != _instanceToHaptic.end())
-	{
-		SDL_HapticClose(hapticIterator->second);
-		_instanceToHaptic.erase(instance);
-	}
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT,
-		"GameControllerManager::closeFromInstance: "
-		"Closing instance @%d at address %p",
-		instance,
-		gcToClose);
-
-	SDL_GameControllerClose(gcToClose);
-
-	VERBOSE(SDL_LOG_CATEGORY_INPUT,
-		"GameControllerManager::closeFromInstance: "
-		"Removing from mappings");
-
-	_deviceToInstance.erase(deviceIterator->second);
-	_instanceToDevice.erase(deviceIterator);
 }
 
-SDL_Haptic * GameControllerManager::getHapticFromInstance(
-	unsigned const instance)
+int GameControllerManager::getNumAvailableControllers(void) const
 {
-	if (_instanceToHaptic.find(instance) == _instanceToHaptic.end())
+	return _controllers.size();
+}
+
+GameController * GameControllerManager::getControllerFromDeviceID(int deviceID)
+{
+	if (_controllers.find(deviceID) == _controllers.end())
 		return nullptr;
 	else
-		return _instanceToHaptic.at(instance);
+		return (&_controllers.at(deviceID));
 }
 
-SDL_GameController * GameControllerManager::getFirstController(void)
+GameController * GameControllerManager::getControllerFromInstanceID(SDL_JoystickID instanceID)
 {
-	if (!_instanceToDevice.empty())
-		return SDL_GameControllerFromInstanceID(_instanceToDevice.begin()->first);
-	else
+	auto deviceIterator(_instanceToDevice.find(instanceID));
+	if(deviceIterator == _instanceToDevice.end())
 		return nullptr;
+
+	auto controllerIterator = _controllers.find(deviceIterator->second);
+	if (controllerIterator == _controllers.end())
+	{
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Bad mappings : instanceID %d mapped to device %d without "
+			"associated controller",
+			instanceID, deviceIterator->second);
+		return nullptr;
+	}
+
+	return (&controllerIterator->second);
+}
+
+GameControllerManager::~GameControllerManager(void)
+{
+	for(auto & gcPair : _deviceToInstance)
+		SDL_GameControllerClose(SDL_GameControllerFromInstanceID(gcPair.second));
+
+	_deviceToInstance.clear();
+	_instanceToDevice.clear();
 }

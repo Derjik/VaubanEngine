@@ -5,7 +5,7 @@
 TrueTypeFont::TrueTypeFont(std::string const & filePath,
 							unsigned const size,
 							unsigned const face) :
-	_font(nullptr)
+	_font(nullptr, &TTF_CloseFont)
 {
 	if (filePath.empty())
 		THROW(Exception, "Received empty 'filePath'");
@@ -18,8 +18,8 @@ TrueTypeFont::TrueTypeFont(std::string const & filePath,
 		size,
 		face);
 
-	_font = std::unique_ptr<TTF_Font, TTFDeleter>(
-		TTF_OpenFontIndex(filePath.c_str(), size, face), TTFDeleter());
+	_font = std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)>(
+		TTF_OpenFontIndex(filePath.c_str(), size, face), &TTF_CloseFont);
 
 	if(_font == nullptr)
 		THROW(Exception,
@@ -158,9 +158,4 @@ SDL_Surface * TrueTypeFont::renderSolid(std::string const & text,
 		THROW(Exception, "Cannot render text : TTF error '%s'", TTF_GetError());
 
 	return renderedText;
-}
-
-void TrueTypeFont::TTFDeleter::operator() (TTF_Font * font) const
-{
-	TTF_CloseFont(font);
 }
