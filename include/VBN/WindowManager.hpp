@@ -10,8 +10,8 @@ class TrueTypeFontManager;
 class WindowManager
 {
 	private:
-		std::map<std::string, Window> _windows;
-		std::map<SDL_Window *, std::string> _labels;
+		std::map<Uint32, Window> _idToWindow;
+		std::map<std::string, Uint32> _stringToId;
 
 	public:
 		void add(
@@ -24,10 +24,8 @@ class WindowManager
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
 
-		Window & getByName(std::string const &);
-		Window & getByAddress(SDL_Window *);
-		std::string getWindowNameByAddress(SDL_Window *);
-		void remove(std::string const &);
+		Window * getWindowByName(std::string const &);
+		Window * getWindowById(Uint32 const id);
 };
 
 #endif // WINDOW_MANAGER_HPP_INCLUDED

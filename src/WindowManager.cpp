@@ -28,58 +28,37 @@ void WindowManager::add(
 	if (!ttfManager)
 		THROW(Exception, "Received nullptr 'ttfManager'");
 
-	_windows.emplace(std::make_pair(name,
-		Window(title,
-			x, y, w, h,
-			ratioType,
-			windowFlags,
-			rendererFlags,
-			ttfManager)));
-	_labels.emplace(std::make_pair(_windows.at(name).getAddress(),
-		name));
+	Window win(
+		title,
+		x, y, w, h,
+		ratioType,
+		windowFlags,
+		rendererFlags,
+		ttfManager);
+	Uint32 id(win.getId());
+
+	_stringToId.emplace(name, id);
+	_idToWindow.emplace(id, std::move(win));
 }
 
-Window & WindowManager::getByName(std::string const & name)
+Window * WindowManager::getWindowByName(std::string const & name)
 {
-	if (_windows.find(name) != _windows.end())
-		return _windows.at(name);
-	else
-		THROW(Exception, "No window with name '%s'", name);
+	if (_stringToId.find(name) != _stringToId.end())
+		if (_idToWindow.find(_stringToId.at(name)) != _idToWindow.end())
+			return (&_idToWindow.at(_stringToId.at(name)));
+		else
+			ERROR(SDL_LOG_CATEGORY_APPLICATION,
+				"Window '%s' has id '%d' but cannot be found in _stringToId",
+				name,
+				_stringToId.at(name));
+
+	return nullptr;
 }
 
-Window & WindowManager::getByAddress(SDL_Window * address)
+Window * WindowManager::getWindowById(Uint32 const id)
 {
-	if (_labels.find(address) != _labels.end())
-	{
-		try
-		{
-			getByName(_labels.at(address));
-		}
-		catch (Exception exc)
-		{
-			THROW(Exception,
-				"Mapping error : found '%p' in _labels "
-				"but not in _windows", address);
-		}
-	}
-	else
-		THROW(Exception, "No window with address '%p'", address);
-}
+	if (_idToWindow.find(id) != _idToWindow.end())
+		return (&_idToWindow.at(id));
 
-void WindowManager::remove(std::string const & name)
-{
-	if (_windows.find(name) != _windows.end())
-	{
-		SDL_Window * address = _windows.at(name).getAddress();
-		_windows.erase(name);
-		_labels.erase(address);
-	}
-}
-
-std::string WindowManager::getWindowNameByAddress(SDL_Window * address)
-{
-	if (_labels.find(address) != _labels.end())
-		return _labels.at(address);
-	else
-		ERROR(SDL_LOG_CATEGORY_ERROR, "No window with address '%p'", address);
+	return nullptr;
 }
