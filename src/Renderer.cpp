@@ -42,9 +42,7 @@ Renderer::Renderer(SDL_Window * window,
 
 	setBlendMode(SDL_BLENDMODE_BLEND);
 
-	SDL_RendererInfo rendererInfo;
-	SDL_GetRendererInfo(_renderer.get(), &rendererInfo);
-	Introspection::logRendererInfo(_renderer.get());
+	Introspection::insertRendererInfo(_renderer.get());
 }
 
 //SDL_Renderer * Renderer::getSDLRenderer(void)

@@ -2,11 +2,14 @@
 #define INTROSPECTION_HPP_INCLUDED
 
 #include <string>
+#include <sstream>
 #include <SDL2/SDL_render.h>
 
 class Introspection
 {
 	private:
+		static std::stringstream _synthesis;
+
 		static int _numRenderDrivers;
 		static int _numVideoDisplays;
 		static int _numVideoDrivers;
@@ -15,16 +18,16 @@ class Introspection
 		static std::string _currentVideoDriver;
 		static std::string _currentAudioDriver;
 
-		static void videoDisplays(void);
-		static void audioDevices(void);
-		static void videoDrivers(void);
-		static void audioDrivers(void);
-		static void renderDrivers(void);
-		static void renderDriverInfo(SDL_RendererInfo const & info);
+		static void fetchVideoDisplays(void);
+		static void fetchAudioDevices(void);
+		static void fetchVideoDrivers(void);
+		static void fetchAudioDrivers(void);
+		static void fetchRenderDrivers(void);
+		static void fetchRenderDriverInfo(SDL_RendererInfo const & info);
 
 	public:
 		static void perform(void);
-		static void logRendererInfo(SDL_Renderer * renderer);
+		static void insertRendererInfo(SDL_Renderer * renderer);
 };
 
 #endif // INTROSPECTION_HPP_INCLUDED
