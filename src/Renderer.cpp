@@ -167,6 +167,14 @@ void Renderer::resetViewport(void)
 			SDL_GetError());
 }
 
+void Renderer::setScale(float const x, float const y)
+{
+	if (SDL_RenderSetScale(_renderer.get(), x, y))
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Cannot set renderer scale : SDL error '%s'",
+			SDL_GetError());
+}
+
 void Renderer::clear(void)
 {
 	if(SDL_RenderClear(_renderer.get()))

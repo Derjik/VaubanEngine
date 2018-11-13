@@ -39,6 +39,7 @@ class Renderer
 		void setViewport(
 			SDL_Rect const & viewport);
 		void resetViewport(void);
+		void setScale(float const x, float const y);
 
 		/* Texture management */
 		void addTextTexture(
