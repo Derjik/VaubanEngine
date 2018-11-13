@@ -8,6 +8,7 @@
 #include <SDL2/SDL_render.h>
 #include <VBN/Texture.hpp>
 #include <VBN/BitmapFontManager.hpp>
+#include <VBN/Renderer.hpp>
 
 class TrueTypeFontManager;
 
@@ -23,11 +24,11 @@ class Window
 
 	private:
 		std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> _window;
-		std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> _renderer;
+		std::unique_ptr<Renderer> _renderer;
 
 		RatioType _ratioType;
-		unsigned _canvasWidth;
-		unsigned _canvasHeight;
+		int _canvasWidth;
+		int _canvasHeight;
 
 		std::unique_ptr<BitmapFontManager> _bitmapFontManager;
 
@@ -50,42 +51,11 @@ class Window
 		Window & operator = (Window const &) = delete;
 
 		void toggleFullscreen(void);
-		void setBlendMode(SDL_BlendMode const & blendMode);
-
-		void addTextTexture(
-			std::string const & name,
-			std::shared_ptr<TrueTypeFontManager> ttfManager,
-			std::string const & fontName,
-			std::string const & text,
-			int const size,
-			SDL_Color const & color);
-
-		void addImageTexture(
-			std::string const & name,
-			std::string const & path);
-
-		bool hasTexture(std::string const & name);
-
-		void removeTexture(std::string const & name);
-
-		void printText(std::string const & text,
-				std::string const & fontName,
-				int const size,
-				SDL_Color const & color,
-				SDL_Rect const & destination);
-
-		void printDebugText(std::string const & fontName,
-			int const size,
-			int const xDest,
-			int const yDest);
-
-		Texture & getTexture(std::string const & name);
 
 		std::array<int, 4> getBorderSize(void) const;
 		float getBrightness(void) const;
 		int getCurrentDisplayIndex(void) const;
-		SDL_Renderer * getRenderer(void);
-		SDL_Window * getAddress(void);
+		Renderer * getRenderer(void);
 		Uint32 getId(void);
 
 		void handleResize(void);
