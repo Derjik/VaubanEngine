@@ -96,12 +96,3 @@ GameController * GameControllerManager::getControllerFromInstanceID(SDL_Joystick
 
 	return (&controllerIterator->second);
 }
-
-GameControllerManager::~GameControllerManager(void)
-{
-	for(auto & gcPair : _deviceToInstance)
-		SDL_GameControllerClose(SDL_GameControllerFromInstanceID(gcPair.second));
-
-	_deviceToInstance.clear();
-	_instanceToDevice.clear();
-}
