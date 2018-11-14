@@ -20,6 +20,9 @@ class BitmapFontManager
 							SDL_Renderer * renderer);
 		BitmapFontManager(BitmapFontManager const & other) = delete;
 		BitmapFontManager(BitmapFontManager && other);
+		BitmapFontManager & operator = (BitmapFontManager const &) = delete;
+		BitmapFontManager & operator = (BitmapFontManager &&) = delete;
+		~BitmapFontManager(void);
 
 		void preload(std::vector<std::pair<std::string, int>> const fonts);
 		BitmapFont * getFont(std::string const & name, int const size);

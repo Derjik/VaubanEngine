@@ -11,6 +11,16 @@ Engine::Engine(std::shared_ptr<IGameContext> initialContext) :
 	_msPerFrame(1, 1000)
 {
 	_stack.push_back(initialContext);
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build Engine %p",
+		this);
+}
+
+Engine::~Engine(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete Engine %p",
+		this);
 }
 
 void Engine::run(float const gameTicksPerMillisecond)
@@ -41,7 +51,7 @@ void Engine::run(float const gameTicksPerMillisecond)
 
 		/* Time */
 		_stack.back()->elapse(
-			(float)(nominalFrameDuration) * gameTicksPerMillisecond,
+			(Uint32)((float)(nominalFrameDuration) * gameTicksPerMillisecond),
 			update);
 
 		/* Output */
@@ -60,7 +70,7 @@ void Engine::run(float const gameTicksPerMillisecond)
 				"Frame was too long to prepare : %d ms",
 				frameDuration);
 			_stack.back()->elapse(
-				(float)(-unusedTime) * gameTicksPerMillisecond,
+				(Uint32)((float)(-unusedTime) * gameTicksPerMillisecond),
 				update);
 		}
 /* ----- End chrono correction */

@@ -20,6 +20,10 @@ class EventDispatcher : public IEventHandler
 			std::shared_ptr<IEventHandler> gameController,
 			std::shared_ptr<IEventHandler> joystick,
 			std::shared_ptr<IEventHandler> window);
+		EventDispatcher(EventDispatcher const &) = delete;
+		EventDispatcher(EventDispatcher &&) = delete;
+		EventDispatcher & operator = (EventDispatcher const &) = delete;
+		EventDispatcher & operator = (EventDispatcher &&) = delete;
 		~EventDispatcher(void);
 
 		void handleEvent(SDL_Event const & event,

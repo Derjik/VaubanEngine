@@ -16,8 +16,12 @@ class Engine
 
 	public:
 		Engine(std::shared_ptr<IGameContext> initialContext);
+		Engine(Engine const &) = delete;
+		Engine(Engine &&) = delete;
+		Engine & operator = (Engine const &) = delete;
+		Engine & operator = (Engine &&) = delete;
+		~Engine(void);
 
-		/* Run the main event loop */
 		void run(float const gameTicksPerMillisecond);
 
 		Uint32 getAverageMillisecondsPerFrame(void);

@@ -12,10 +12,18 @@ EventDispatcher::EventDispatcher(
 	_gameControllerEventHandler(gameController),
 	_joystickEventHandler(joystick),
 	_windowEventHandler(window)
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build EventDispatcher %p",
+		this);
+}
 
 EventDispatcher::~EventDispatcher(void)
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete EventDispatcher %p",
+		this);
+}
 
 void EventDispatcher::handleEvent(SDL_Event const & event,
 	std::shared_ptr<EngineUpdate> engineUpdate)

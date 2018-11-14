@@ -14,8 +14,12 @@ class TrueTypeFontManager
 
 	public:
 		TrueTypeFontManager(std::set<std::string>  const & fontNames);
+		TrueTypeFontManager(TrueTypeFontManager const &) = delete;
+		TrueTypeFontManager(TrueTypeFontManager &&) = delete;
+		TrueTypeFontManager & operator = (TrueTypeFontManager const &) = delete;
+		TrueTypeFontManager & operator = (TrueTypeFontManager &&) = delete;
 
-		TrueTypeFont & getFont(std::string const & name, int const size);
+		TrueTypeFont * getFont(std::string const & name, int const size);
 };
 
 #endif // TRUE_TYPE_FONT_MANAGER_HPP_INCLUDED

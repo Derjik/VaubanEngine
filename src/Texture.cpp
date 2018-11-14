@@ -18,6 +18,11 @@ Texture::Texture(SDL_Texture * rawTexture) :
 			&_access,
 			&_width,
 			&_height);
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build Texture %p (SDL_Texture %p)",
+		this,
+		_rawTexture.get());
 }
 
 Texture::Texture(Texture && other) :
@@ -27,10 +32,17 @@ Texture::Texture(Texture && other) :
 	_access(std::move(other._access)),
 	_width(std::move(other._width)),
 	_height(std::move(other._height))
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move Texture %p (SDL_Texture %p) into new Texture %p",
+		&other,
+		_rawTexture.get(),
+		this);
+}
 
 Texture & Texture::operator=(Texture && other)
 {
+	// TODO : leak check below
 	this->_rawTexture = std::move(other._rawTexture);
 	this->_clips = std::move(other._clips);
 	this->_pixelFormat = std::move(other._pixelFormat);
@@ -38,7 +50,21 @@ Texture & Texture::operator=(Texture && other)
 	this->_width = std::move(other._width);
 	this->_height = std::move(other._height);
 
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move (assign) Texture %p (SDL_Texture %p) into Texture %p",
+		&other,
+		_rawTexture.get(),
+		this);
+
 	return (*this);
+}
+
+Texture::~Texture(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete Texture %p (SDL_Texture %p)",
+		this,
+		_rawTexture.get());
 }
 
 SDL_Texture * Texture::getSDLTexture(void)

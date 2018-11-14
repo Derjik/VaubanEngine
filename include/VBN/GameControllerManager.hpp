@@ -14,6 +14,11 @@ class GameControllerManager
 		void logMappings(void);
 
 	public:
+		GameControllerManager(void);
+		GameControllerManager(GameControllerManager const &) = delete;
+		GameControllerManager(GameControllerManager &&) = delete;
+		GameControllerManager & operator = (GameControllerManager const &) = delete;
+		GameControllerManager & operator = (GameControllerManager &&) = delete;
 		~GameControllerManager(void);
 
 		void openFromDeviceIndex(int const);

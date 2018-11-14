@@ -14,6 +14,13 @@ class WindowManager
 		std::map<std::string, Uint32> _stringToId;
 
 	public:
+		WindowManager(void);
+		WindowManager(WindowManager const &) = delete;
+		WindowManager(WindowManager &&) = delete;
+		WindowManager & operator = (WindowManager const &) = delete;
+		WindowManager & operator = (WindowManager &&) = delete;
+		~WindowManager(void);
+
 		void add(
 			std::string const & name,
 			std::string const & title,

@@ -3,6 +3,20 @@
 #include <VBN/Exceptions.hpp>
 #include <VBN/Logging.hpp>
 
+WindowManager::WindowManager(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build WindowManager %p",
+		this);
+}
+
+WindowManager::~WindowManager(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete WindowManager %p",
+		this);
+}
+
 void WindowManager::add(
 	std::string const & name,
 	std::string const & title,

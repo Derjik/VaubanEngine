@@ -21,9 +21,7 @@ class Renderer
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
 		Renderer(Renderer const &) = delete;
 		Renderer & operator = (Renderer const &) = delete;
-
-		/* Raw SDL_Renderer access */
-		//SDL_Renderer * getSDLRenderer(void);
+		~Renderer(void);
 
 		/* Renderer settings */
 		void setDrawColor(

@@ -19,7 +19,9 @@ class GameController
 		GameController(unsigned const deviceIndex);
 		GameController(GameController const & other) = delete;
 		GameController(GameController && other);
-		GameController & operator = (GameController && other);
+		GameController & operator = (GameController const &) = delete;
+		GameController & operator = (GameController &&) = delete;
+		~GameController(void);
 
 		int getDeviceIndex(void) const;
 		SDL_JoystickID getInstanceId(void) const;

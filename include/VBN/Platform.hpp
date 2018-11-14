@@ -14,6 +14,9 @@ class Platform
 	public:
 		Platform(WindowManager * windowManager,
 			GameControllerManager * gameControllerManager);
+		Platform(Platform const &) = delete;
+		Platform & operator = (Platform const &) = delete;
+		~Platform(void);
 
 		WindowManager * getWindowManager(void);
 		GameControllerManager * getGameControllerManager(void);

@@ -34,6 +34,11 @@ Window::Window(std::string const & title,
 			ttfManager));
 
 	applyRatioTypeSettings();
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build Window %p (SDL_Window %p)",
+		this,
+		_window.get());
 }
 
 Window::Window(Window && other) :
@@ -44,7 +49,21 @@ Window::Window(Window && other) :
 	_canvasHeight(std::move(other._canvasHeight)),
 	_bitmapFontManager(std::move(other._bitmapFontManager)),
 	_textures(std::move(other._textures))
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move Window %p (SDL_Window %p) into new Window %p",
+		&other,
+		_window.get(),
+		this);
+}
+
+Window::~Window(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete Window %p (SDL_Window %p)",
+		this,
+		_window.get());
+}
 
 void Window::applyRatioTypeSettings(void)
 {

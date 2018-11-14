@@ -15,7 +15,8 @@ class Surface
 	public:
 		Surface(Surface const & other) = delete;
 		Surface(Surface && other);
-		Surface & operator = (Surface && other);
+		Surface & operator = (Surface const &) = delete;
+		~Surface(void);
 
 		SDL_Surface * getSurface(void);
 

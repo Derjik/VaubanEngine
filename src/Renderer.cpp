@@ -43,12 +43,20 @@ Renderer::Renderer(SDL_Window * window,
 	setBlendMode(SDL_BLENDMODE_BLEND);
 
 	Introspection::insertRendererInfo(_renderer.get());
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build Renderer %p (SDL_Renderer %p)",
+		this,
+		_renderer.get());
 }
 
-//SDL_Renderer * Renderer::getSDLRenderer(void)
-//{
-//	return _renderer.get();
-//}
+Renderer::~Renderer(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete Renderer %p (SDL_Renderer %p)",
+		this,
+		_renderer.get());
+}
 
 void Renderer::addTextTexture(std::string const & textureName,
 			std::shared_ptr<TrueTypeFontManager> ttfManager,

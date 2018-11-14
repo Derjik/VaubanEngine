@@ -23,8 +23,10 @@ class Texture
 	public:
 		/* Allow move constructor and affectation only */
 		Texture(Texture && other);
-		Texture & operator = (Texture && other);
 		Texture(Texture const & other) = delete;
+		Texture & operator = (Texture const &) = delete;
+		Texture & operator = (Texture && other);
+		~Texture(void);
 
 		/* Intrinsic and invariable attributes */
 		SDL_Texture * getSDLTexture(void);

@@ -1,10 +1,22 @@
 #include <VBN/EngineUpdate.hpp>
+#include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
 EngineUpdate::EngineUpdate(void) : 
 	_popFlag(false),
 	_nextIGameContext(nullptr)
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build EngineUpdate %p",
+		this);
+}
+
+EngineUpdate::~EngineUpdate(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete EngineUpdate %p",
+		this);
+}
 
 void EngineUpdate::pushGameContext(std::shared_ptr<IGameContext> gameContext)
 {

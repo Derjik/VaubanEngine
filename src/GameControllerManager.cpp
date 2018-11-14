@@ -3,6 +3,20 @@
 #include <VBN/Exceptions.hpp>
 #include <string>
 
+GameControllerManager::GameControllerManager(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build GameControllerManager %p",
+		this);
+}
+
+GameControllerManager::~GameControllerManager(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete GameControllerManager %p",
+		this);
+}
+
 void GameControllerManager::openFromDeviceIndex(int const deviceIndex)
 {
 	GameController controller(deviceIndex);

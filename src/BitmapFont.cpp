@@ -27,10 +27,15 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 	if (renderer == nullptr)
 		THROW(Exception, "Received nullptr 'renderer'");
 
-	TrueTypeFont & font = ttfManager->getFont(name, size);
+	TrueTypeFont * font = ttfManager->getFont(name, size);
+	if (!font)
+		THROW(Exception,
+			"Cannot retrieve font '%s' size '%d'",
+			name,
+			size);
 
-	_lineSkip = font.getLineSkip();
-	TrueTypeFont::GlyphMetrics spaceMetrics = font.getGlyphMetrics(' ');
+	_lineSkip = font->getLineSkip();
+	TrueTypeFont::GlyphMetrics spaceMetrics = font->getGlyphMetrics(' ');
 
 	unsigned char currentCharacter(0);
 	int currentLine(0), maxWidth(0);
@@ -51,7 +56,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 			{
 				lineString.append(1, currentCharacter);
 				_glyphMetrics[currentCharacter] =
-					font.getGlyphMetrics(currentCharacter);
+					font->getGlyphMetrics(currentCharacter);
 				_clips[currentCharacter] =
 					{horizontalAdvance + _glyphMetrics[currentCharacter].xMin,
 					verticalAdvance,
@@ -63,6 +68,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 
 				++currentPrintable;
 
+				/*
 				VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 					"'%c' x(%d;%d)y(%d;%d)a(%d)",
 					currentCharacter,
@@ -71,6 +77,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 					_glyphMetrics[currentCharacter].yMin,
 					_glyphMetrics[currentCharacter].yMax,
 					_glyphMetrics[currentCharacter].advance);
+					*/
 			}
 			else
 			{
@@ -114,7 +121,11 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 	}
 
 	/* Convert surface into a texture for accelerated rendering */
-	_texture = Texture::fromSurface(renderer, internalSurface);
+	_texture = std::move(Texture::fromSurface(renderer, internalSurface));
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build BitmapFont %p",
+		this);
 }
 
 BitmapFont::BitmapFont(BitmapFont && other) :
@@ -123,7 +134,19 @@ BitmapFont::BitmapFont(BitmapFont && other) :
 	_glyphMetrics(std::move(other._glyphMetrics)),
 	_clips(std::move(other._clips)),
 	_lineSkip(std::move(other._lineSkip))
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move BitmapFont %p into new BitmapFont %p",
+		&other,
+		this);
+}
+
+BitmapFont::~BitmapFont(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete BitmapFont %p",
+		this);
+}
 
 void BitmapFont::renderText(std::string const & text,
 	SDL_Color const & color,
@@ -181,6 +204,7 @@ void BitmapFont::renderText(std::string const & text,
 			lineAdvance += _glyphMetrics[currentCharacter].advance;
 			++index;
 
+			/*
 			VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 				"L%d(%d->%d) %c '%s'",
 				lineIndex,
@@ -188,6 +212,7 @@ void BitmapFont::renderText(std::string const & text,
 				lineEnd,
 				currentCharacter,
 				text.substr(lineBegin, lineEnd-lineBegin+1).c_str());
+				*/
 		}
 
 		/* Line is too large to be displayed in destination rectangle */
@@ -215,12 +240,14 @@ void BitmapFont::renderText(std::string const & text,
 
 		int lineNumber = lineIterator - lines.begin();
 
+		/*
 		VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 			"L%d(%d->%d) '%s'",
 			lineNumber,
 			lineIterator->first,
 			lineIterator->second,
 			tempo.c_str());
+			*/
 
 		int currentAdvance(0);
 		for(char c : tempo)

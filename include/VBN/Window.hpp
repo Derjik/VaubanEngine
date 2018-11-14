@@ -45,10 +45,11 @@ class Window
 			Uint32 windowFlags,
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
-
 		Window(Window const & other) = delete;
 		Window(Window && other);
 		Window & operator = (Window const &) = delete;
+		Window & operator = (Window &&) = delete;
+		~Window(void);
 
 		void toggleFullscreen(void);
 

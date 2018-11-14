@@ -23,6 +23,9 @@ class BitmapFont
 			SDL_Renderer * renderer);
 		BitmapFont(BitmapFont const & other) = delete;
 		BitmapFont(BitmapFont && other);
+		BitmapFont & operator = (BitmapFont const &) = delete;
+		BitmapFont & operator = (BitmapFont &&) = delete;
+		~BitmapFont(void);
 
 		void renderText(std::string const & text,
 			SDL_Color const & color,

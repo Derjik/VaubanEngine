@@ -29,9 +29,9 @@ class TrueTypeFont
 			unsigned const face = 0);
 		TrueTypeFont(TrueTypeFont &&other);
 		TrueTypeFont(TrueTypeFont const &other) = delete;
+		TrueTypeFont & operator = (TrueTypeFont const &) = delete;
+		TrueTypeFont & operator = (TrueTypeFont &&) = delete;
 		~TrueTypeFont();
-
-		TTF_Font const * getFont(void) const;
 
 		int getStyle(void) const;
 		int getOutline(void) const;

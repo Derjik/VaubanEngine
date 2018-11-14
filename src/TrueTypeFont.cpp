@@ -2,9 +2,10 @@
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
-TrueTypeFont::TrueTypeFont(std::string const & filePath,
-							unsigned const size,
-							unsigned const face) :
+TrueTypeFont::TrueTypeFont(
+	std::string const & filePath,
+	unsigned const size,
+	unsigned const face) :
 	_font(nullptr, &TTF_CloseFont)
 {
 	if (filePath.empty())
@@ -40,17 +41,29 @@ TrueTypeFont::TrueTypeFont(std::string const & filePath,
 		getIsFixedWidth());
 
 	TTF_SetFontKerning(_font.get(), 0);
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Built font %s size %d @ %p",
+		filePath.c_str(),
+		size,
+		this);
 }
 
 TrueTypeFont::TrueTypeFont(TrueTypeFont && other) : _font(std::move(other._font))
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move font %p (TTF_Font %p) into new font %p",
+		&other,
+		_font.get(),
+		this);
+}
 
 TrueTypeFont::~TrueTypeFont()
-{}
-
-TTF_Font const * TrueTypeFont::getFont(void) const
 {
-	return _font.get();
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete font @ %p (TTF_Font %p)",
+		this,
+		_font.get());
 }
 
 int TrueTypeFont::getStyle(void) const

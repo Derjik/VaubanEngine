@@ -126,6 +126,37 @@ GameController::GameController(unsigned const deviceIndex) :
 					SDL_GetError());
 		}
 	}
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build GameController %p (SDL_GameController %p ; SDL_Haptic %p)",
+		this,
+		_controller.get(),
+		_haptic.get());
+}
+
+GameController::GameController(GameController && other) :
+	_controller(std::move(other._controller)),
+	_deviceIndex(std::move(other._deviceIndex)),
+	_instanceId(std::move(other._instanceId)),
+	_haptic(std::move(other._haptic)),
+	_rumbleSupport(std::move(other._rumbleSupport))
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move GameController %p (SDL_GameController %p ; SDL_Haptic %p) "
+		"into new GameController %p",
+		&other,
+		_controller.get(),
+		_haptic.get(),
+		this);
+}
+
+GameController::~GameController(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete GameController %p (SDL_GameController %p ; SDL_Haptic %p)",
+		this,
+		_controller.get(),
+		_haptic.get());
 }
 
 int GameController::getDeviceIndex(void) const
@@ -160,22 +191,4 @@ void GameController::rumble(float strength, Uint32 milliseconds)
 			ERROR(SDL_LOG_CATEGORY_APPLICATION,
 				"Could not play rumble effect : SDL error '%s'",
 				SDL_GetError());
-}
-
-GameController::GameController(GameController && other) :
-	_controller(std::move(other._controller)),
-	_deviceIndex(std::move(other._deviceIndex)),
-	_instanceId(std::move(other._instanceId)),
-	_haptic(std::move(other._haptic)),
-	_rumbleSupport(std::move(other._rumbleSupport))
-{}
-
-GameController & GameController::operator = (GameController && other)
-{
-	this->_controller = std::move(other._controller);
-	this->_deviceIndex = std::move(other._deviceIndex);
-	this->_instanceId = std::move(other._instanceId);
-	this->_haptic = std::move(other._haptic);
-	this->_rumbleSupport = std::move(other._rumbleSupport);
-	return (*this);
 }

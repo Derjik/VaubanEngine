@@ -13,13 +13,31 @@ BitmapFontManager::BitmapFontManager(
 		THROW(Exception, "Received nullptr 'trueTypeFontManager'");
 	if(!_renderer)
 		THROW(Exception, "Received nullptr 'renderer'");
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build BitmapFontManager %p",
+		this,
+		_trueTypeFontManager.get(),
+		renderer);
 }
 
 BitmapFontManager::BitmapFontManager(BitmapFontManager && other) :
 	_renderer(std::move(other._renderer)),
 	_trueTypeFontManager(other._trueTypeFontManager),
 	_fonts(std::move(other._fonts))
-{}
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move BitmapFontManager %p into new BitmapFontManager %p",
+		&other,
+		this);
+}
+
+BitmapFontManager::~BitmapFontManager(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete BitmapFontManager %p",
+		this);
+}
 
 void BitmapFontManager::preload(
 	std::vector < std::pair<std::string, int>> const fonts)

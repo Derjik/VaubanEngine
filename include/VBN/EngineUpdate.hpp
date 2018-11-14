@@ -13,6 +13,11 @@ class EngineUpdate
 
 	public:
 		EngineUpdate(void);
+		EngineUpdate(EngineUpdate const &) = delete;
+		EngineUpdate(EngineUpdate &&) = delete;
+		EngineUpdate & operator = (EngineUpdate const &) = delete;
+		EngineUpdate & operator = (EngineUpdate &&) = delete;
+		~EngineUpdate(void);
 
 		/* API for the EventHandler */
 		void pushGameContext(std::shared_ptr<IGameContext>);

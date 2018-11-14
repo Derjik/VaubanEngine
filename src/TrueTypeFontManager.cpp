@@ -2,11 +2,14 @@
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
-TrueTypeFontManager::TrueTypeFontManager(std::set<std::string> const & fontNames) : _fontNames(fontNames)
+TrueTypeFontManager::TrueTypeFontManager(
+	std::set<std::string> const & fontNames) :
+	_fontNames(fontNames)
 {}
 
-TrueTypeFont &
-TrueTypeFontManager::getFont(std::string const & name, int const size)
+TrueTypeFont * TrueTypeFontManager::getFont(
+	std::string const & name,
+	int const size)
 {
 	if (name.empty())
 		THROW(Exception, "Received empty 'name'");
@@ -20,17 +23,22 @@ TrueTypeFontManager::getFont(std::string const & name, int const size)
 	auto const fontIterator = _fonts.find(make_pair(name, size));
 	if(fontIterator == _fonts.end())
 	{
-		VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-			"Font '%s' size %d not loaded, loading",
+		DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+			"Font '%s' size '%d' not loaded, loading",
 			name.c_str(), size);
-		_fonts.emplace(make_pair(name, size), TrueTypeFont(name + ".ttf", size));
-		return _fonts.at(make_pair(name, size));
+
+		TrueTypeFont ttFont(name + ".ttf", size);
+
+		_fonts.emplace(make_pair(name, size), std::move(ttFont));
+
+		return (&_fonts.at(make_pair(name, size)));
 	}
 	else
 	{
-		VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-			"Font '%s' size %d already loaded, reusing",
+		DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+			"Font '%s' size '%d' already loaded, reusing",
 			name.c_str(), size);
-		return fontIterator->second;
+
+		return (&fontIterator->second);
 	}
 }

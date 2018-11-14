@@ -4,20 +4,32 @@
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
-
 Surface::Surface(SDL_Surface * rawSurface) : _rawSurface(rawSurface, &SDL_FreeSurface)
 {
 	if (rawSurface == nullptr)
 		THROW(Exception, "Received nullptr 'rawSurface'");
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Build Surface %p (SDL_Surface %p)",
+		this,
+		_rawSurface.get());
 }
 
 Surface::Surface(Surface && other) : _rawSurface(std::move(other._rawSurface))
-{}
-
-Surface & Surface::operator=(Surface && other)
 {
-	this->_rawSurface = std::move(other._rawSurface);
-	return (*this);
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Move Surface %p (SDL_Surface %p) into new Surface %p",
+		&other,
+		_rawSurface.get(),
+		this);
+}
+
+Surface::~Surface(void)
+{
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
+		"Delete Surface %p (SDL_Surface %p)",
+		this,
+		_rawSurface.get());
 }
 
 SDL_Surface * Surface::getSurface(void)
@@ -39,8 +51,14 @@ Surface Surface::fromText(
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
 
-	return Surface(ttfManager->getFont(fontName, size)
-					.renderSolid(text, color));
+	TrueTypeFont * font(ttfManager->getFont(fontName, size));
+	if (!font)
+		THROW(Exception,
+			"Cannot retrieve font '%s' size '%d'",
+			fontName,
+			size);
+
+	return Surface(font->renderSolid(text, color));
 }
 
 Surface Surface::fromImage(std::string const & path)
