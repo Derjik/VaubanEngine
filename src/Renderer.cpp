@@ -12,10 +12,6 @@ Renderer::Renderer(SDL_Window * window,
 	_renderer(nullptr, &SDL_DestroyRenderer),
 	_bitmapFontManager(nullptr)
 {
-	INFO(SDL_LOG_CATEGORY_RENDER, "Build Renderer : "
-		"Window 0x%08X - Index %d - flags 0x%08X - TTFManager 0x%08X",
-		window, index, flags, ttfManager);
-
 	if (!window)
 		THROW(Exception, "Received nullptr 'window'");
 
