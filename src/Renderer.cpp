@@ -110,8 +110,14 @@ void Renderer::printText(std::string const & text,
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
 
-	BitmapFont & font = _bitmapFontManager->getFont(fontName, size);
-	font.renderText(text, color, destination, _renderer.get());
+	BitmapFont * font(_bitmapFontManager->getFont(fontName, size));
+	if (font)
+		font->renderText(text, color, destination, _renderer.get());
+	else
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Cannot print dynamic text : missing font '%s' size '%d'",
+			fontName,
+			size);
 }
 
 void Renderer::printDebugText(std::string const & fontName,
@@ -119,8 +125,14 @@ void Renderer::printDebugText(std::string const & fontName,
 	int const xDest,
 	int const yDest)
 {
-	BitmapFont & font = _bitmapFontManager->getFont(fontName, size);
-	font.renderDebug(_renderer.get(), xDest, yDest);
+	BitmapFont * font = _bitmapFontManager->getFont(fontName, size);
+	if (font)
+		font->renderDebug(_renderer.get(), xDest, yDest);
+	else
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Cannot print debug text : missing font '%s' size '%d'",
+			fontName,
+			size);
 }
 
 void Renderer::setDrawColor(

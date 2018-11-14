@@ -20,13 +20,10 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 {
 	if (!ttfManager)
 		THROW(Exception, "Received nullptr 'ttfMaanager'");
-
 	if (name.empty())
 		THROW(Exception, "Received empty 'name'");
-
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
-
 	if (renderer == nullptr)
 		THROW(Exception, "Received nullptr 'renderer'");
 
@@ -275,7 +272,7 @@ std::array<SDL_Rect, UCHAR_MAX> BitmapFont::getClips(void) const
 	return _clips;
 }
 
-Texture & BitmapFont::getTexture(void)
+Texture const * BitmapFont::getTexture(void)
 {
-	return _texture;
+	return &_texture;
 }

@@ -2,22 +2,21 @@
 #define PLATFORM_HPP_INCLUDED
 
 #include <memory>
-
-class WindowManager;
-class GameControllerManager;
+#include <VBN/WindowManager.hpp>
+#include <VBN/GameControllerManager.hpp>
 
 class Platform
 {
 	private:
-		std::shared_ptr<WindowManager> _windowManager;
-		std::shared_ptr<GameControllerManager> _gameControllerManager;
+		std::unique_ptr<WindowManager> _windowManager;
+		std::unique_ptr<GameControllerManager> _gameControllerManager;
 
 	public:
-		Platform(std::shared_ptr<WindowManager>,
-			std::shared_ptr<GameControllerManager>);
+		Platform(WindowManager * windowManager,
+			GameControllerManager * gameControllerManager);
 
-		std::shared_ptr<WindowManager> getWindowManager(void);
-		std::shared_ptr<GameControllerManager> getGameControllerManager(void);
+		WindowManager * getWindowManager(void);
+		GameControllerManager * getGameControllerManager(void);
 };
 
 #endif // PLATFORM_HPP_INCLUDED

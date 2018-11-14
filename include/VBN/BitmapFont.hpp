@@ -33,7 +33,7 @@ class BitmapFont
 				int const xDest,
 				int const yDest);
 
-		Texture & getTexture(void);
+		Texture const * getTexture(void);
 		std::array<SDL_Rect, UCHAR_MAX> getClips(void) const;
 };
 

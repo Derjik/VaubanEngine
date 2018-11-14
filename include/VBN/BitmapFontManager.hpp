@@ -11,8 +11,8 @@ class TrueTypeFontManager;
 class BitmapFontManager
 {
 	private:
-		std::shared_ptr<TrueTypeFontManager> _trueTypeFontManager;
 		SDL_Renderer * _renderer;
+		std::shared_ptr<TrueTypeFontManager> _trueTypeFontManager;
 		std::map<std::pair<std::string, int>, BitmapFont> _fonts;
 
 	public:
@@ -21,9 +21,8 @@ class BitmapFontManager
 		BitmapFontManager(BitmapFontManager const & other) = delete;
 		BitmapFontManager(BitmapFontManager && other);
 
-		void preload(
-			std::vector<std::pair<std::string, int>> const fonts);
-		BitmapFont & getFont(std::string const & name, int const size);
+		void preload(std::vector<std::pair<std::string, int>> const fonts);
+		BitmapFont * getFont(std::string const & name, int const size);
 };
 
 #endif // BITMAP_FONT_MANAGER_HPP_INCLUDED

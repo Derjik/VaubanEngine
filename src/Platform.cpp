@@ -1,8 +1,8 @@
 #include <VBN/Platform.hpp>
 #include <VBN/Exceptions.hpp>
 
-Platform::Platform(std::shared_ptr<WindowManager> windowManager,
-	std::shared_ptr<GameControllerManager> gameControllerManager) :
+Platform::Platform(WindowManager * windowManager,
+	GameControllerManager * gameControllerManager) :
 	_windowManager(windowManager),
 	_gameControllerManager(gameControllerManager)
 {
@@ -12,12 +12,12 @@ Platform::Platform(std::shared_ptr<WindowManager> windowManager,
 		THROW(Exception, "Received nullptr 'gameControllerManager'");
 }
 
-std::shared_ptr<WindowManager> Platform::getWindowManager(void)
+WindowManager * Platform::getWindowManager(void)
 {
-	return _windowManager;
+	return _windowManager.get();
 }
 
-std::shared_ptr<GameControllerManager> Platform::getGameControllerManager(void)
+GameControllerManager * Platform::getGameControllerManager(void)
 {
-	return _gameControllerManager;
+	return _gameControllerManager.get();
 }
