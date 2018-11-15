@@ -17,7 +17,7 @@ Renderer::Renderer(SDL_Window * window,
 
 	_renderer = std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)>(
 		SDL_CreateRenderer(window, -1, flags),
-		&SDL_DestroyRenderer);
+		SDL_DestroyRenderer);
 	if(_renderer == nullptr)
 		THROW(Exception,
 			"Cannot instantiate SDL_Renderer : SDL error '%s'",

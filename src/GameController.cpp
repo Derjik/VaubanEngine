@@ -38,7 +38,7 @@ GameController::GameController(unsigned const deviceIndex) :
 			"Controller has haptic support, trying to open SDL_Haptic...");
 		_haptic = std::unique_ptr<SDL_Haptic, decltype(&SDL_HapticClose)>(
 			SDL_HapticOpenFromJoystick(joystick),
-			&SDL_HapticClose);
+			SDL_HapticClose);
 		DEBUG(SDL_LOG_CATEGORY_INPUT,
 			"Done opening SDL_Haptic");
 

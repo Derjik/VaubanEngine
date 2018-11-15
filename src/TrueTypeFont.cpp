@@ -20,7 +20,8 @@ TrueTypeFont::TrueTypeFont(
 		face);
 
 	_font = std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)>(
-		TTF_OpenFontIndex(filePath.c_str(), size, face), &TTF_CloseFont);
+		TTF_OpenFontIndex(filePath.c_str(), size, face),
+		TTF_CloseFont);
 
 	if (_font == nullptr)
 	{

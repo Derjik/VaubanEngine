@@ -40,7 +40,7 @@ BitmapFontManager::~BitmapFontManager(void)
 }
 
 void BitmapFontManager::preload(
-	std::vector < std::pair<std::string, int>> const fonts)
+	std::vector <std::pair<std::string, int>> const fonts)
 {
 	for(auto const & fontConfig : fonts)
 	{

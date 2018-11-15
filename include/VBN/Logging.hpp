@@ -7,8 +7,8 @@
 #ifdef _MSC_VER
 
 #define EXCEPT(exception) \
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR, \
-		"%s:%d: [!] EXCEPTION : '%s'", \
+		SDL_LogCritical(SDL_LOG_CATEGORY_ERROR, \
+		"%s:%d: [!] EXCEPTION : <%s>", \
 		__FUNCTION__, __LINE__, exception.what())
 
 #define CRITICAL(category, format, ...) \
@@ -27,8 +27,8 @@
 #else
 
 #define EXCEPT(exception) \
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR, \
-		"%s:%d: [!] EXCEPTION : '%s'", \
+		SDL_LogCritical(SDL_LOG_CATEGORY_ERROR, \
+		"%s:%d: [!] EXCEPTION : <%s>", \
 		__func__, __LINE__, exception.what())
 
 #define CRITICAL(category, format, ...) \

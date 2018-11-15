@@ -202,21 +202,14 @@ void Texture::addClip(std::string const & name,
 			"Cannot override existing clip '%s'",
 			name);
 
-	_clips.emplace(make_pair(
-		name,
-		std::unique_ptr<SDL_Rect>(
-			new SDL_Rect{clip.x, clip.y, clip.w, clip.h})));
+	_clips.emplace(name, clip);
 }
 
 SDL_Rect * Texture::getClip(std::string const & name)
 {
-	if (name.empty())
-		THROW(Exception, "Received empty 'name'");
-
 	auto clipIterator = _clips.find(name);
-
 	if (clipIterator == _clips.end())
-		THROW(Exception, "Cannot find clip '%s'", name);
-
-	return _clips.at(name).get();
+		return nullptr;
+	else
+		return (&clipIterator->second);
 }

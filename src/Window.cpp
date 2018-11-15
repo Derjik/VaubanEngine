@@ -21,7 +21,7 @@ Window::Window(std::string const & title,
 						xPosition, yPosition,
 						windowWidth, windowHeight,
 						windowFlags),
-		&SDL_DestroyWindow);
+		SDL_DestroyWindow);
 	if(_window == nullptr)
 		THROW(Exception,
 			"Cannot instantiate SDL_Window : SDL error '%s'",

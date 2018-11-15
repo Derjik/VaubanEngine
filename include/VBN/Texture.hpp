@@ -11,7 +11,7 @@ class Texture
 	private:
 		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> _rawTexture;
 
-		std::map<std::string, std::unique_ptr<SDL_Rect>> _clips;
+		std::map<std::string, SDL_Rect> _clips;
 
 		Uint32 _pixelFormat;
 		int _access;
