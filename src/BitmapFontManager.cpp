@@ -56,16 +56,30 @@ void BitmapFontManager::preload(
 
 BitmapFont * BitmapFontManager::getFont(std::string const & name, int const size)
 {
+	BitmapFont * font(nullptr);
+
 	auto const fontIterator = _fonts.find(make_pair(name, size));
 	if(fontIterator == _fonts.end())
 	{
-		_fonts.emplace(make_pair(name, size),
-			BitmapFont(_trueTypeFontManager, name, size, _renderer));
+		try
+		{
+			BitmapFont bitmapFont(_trueTypeFontManager, name, size, _renderer);
 
-		return (&_fonts.at(make_pair(name, size)));
+			auto insertedPair(_fonts.emplace(
+				make_pair(name, size),
+				std::move(bitmapFont)));
+
+			font = (&insertedPair.first->second);
+		}
+		catch (Exception const & exc)
+		{
+			EXCEPT(exc);
+		}
 	}
 	else
 	{
-		return (&fontIterator->second);
+		font = (&fontIterator->second);
 	}
+
+	return font;
 }

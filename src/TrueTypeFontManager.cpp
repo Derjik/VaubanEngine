@@ -20,6 +20,8 @@ TrueTypeFont * TrueTypeFontManager::getFont(
 			"No '%s' font configured",
 			name.c_str());
 
+	TrueTypeFont * font(nullptr);
+
 	auto const fontIterator = _fonts.find(make_pair(name, size));
 	if(fontIterator == _fonts.end())
 	{
@@ -27,11 +29,20 @@ TrueTypeFont * TrueTypeFontManager::getFont(
 			"Font '%s' size '%d' not loaded, loading",
 			name.c_str(), size);
 
-		TrueTypeFont ttFont(name + ".ttf", size);
+		try
+		{
+			TrueTypeFont ttFont(name + ".ttf", size);
 
-		_fonts.emplace(make_pair(name, size), std::move(ttFont));
+			auto insertedPair(_fonts.emplace(
+				make_pair(name, size),
+				std::move(ttFont)));
 
-		return (&_fonts.at(make_pair(name, size)));
+			font = (&insertedPair.first->second);
+		}
+		catch (Exception const & exc)
+		{
+			EXCEPT(exc);
+		}
 	}
 	else
 	{
@@ -39,6 +50,8 @@ TrueTypeFont * TrueTypeFontManager::getFont(
 			"Font '%s' size '%d' already loaded, reusing",
 			name.c_str(), size);
 
-		return (&fontIterator->second);
+		font = &fontIterator->second;
 	}
+
+	return font;
 }

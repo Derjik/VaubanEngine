@@ -1,6 +1,7 @@
 #include <VBN/Exceptions.hpp>
 #include <VBN/Logging.hpp>
 #include <cstdarg>
+#include <vector>
 
 Exception::Exception(void) : _what("")
 {
@@ -45,14 +46,16 @@ Exception::~Exception(void)
 
 Exception::Exception(char const * format, ...)
 {
-	va_list args;
-	char buffer[1024];
+	va_list args1;
+	va_start(args1, format);
+	va_list args2;
+	va_copy(args2, args1);
+	std::vector<char> buffer(vsnprintf(nullptr, 0, format, args1));
+	va_end(args1);
+	vsnprintf(buffer.data(), buffer.size(), format, args2);
+	va_end(args2);
 
-	va_start(args, format);
-	snprintf(buffer, sizeof(buffer), format, args);
-	va_end(args);
-
-	_what = buffer;
+	_what.assign(buffer.begin(), buffer.end());
 
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"Build Exception %p ('%s')",

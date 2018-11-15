@@ -31,7 +31,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 	if (!font)
 		THROW(Exception,
 			"Cannot retrieve font '%s' size '%d'",
-			name,
+			name.c_str(),
 			size);
 
 	_lineSkip = font->getLineSkip();

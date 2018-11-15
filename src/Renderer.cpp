@@ -120,7 +120,7 @@ void Renderer::printText(std::string const & text,
 	else
 		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"Cannot print dynamic text : missing font '%s' size '%d'",
-			fontName,
+			fontName.c_str(),
 			size);
 }
 

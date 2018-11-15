@@ -2,8 +2,14 @@
 #define LOGGING_HPP_INCLUDED
 
 #include <SDL2/SDL_log.h>
+#include <VBN/Exceptions.hpp>
 
 #ifdef _MSC_VER
+
+#define EXCEPT(exception) \
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, \
+		"%s:%d: [!] EXCEPTION : '%s'", \
+		__FUNCTION__, __LINE__, exception.what())
 
 #define CRITICAL(category, format, ...) \
 		SDL_LogCritical(category, "%s:%d: " format, __FUNCTION__, __LINE__, __VA_ARGS__)
@@ -19,6 +25,11 @@
 		SDL_LogVerbose(category, "%s:%d: " format, __FUNCTION__, __LINE__, __VA_ARGS__)
 
 #else
+
+#define EXCEPT(exception) \
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, \
+		"%s:%d: [!] EXCEPTION : '%s'", \
+		__func__, __LINE__, exception.what())
 
 #define CRITICAL(category, format, ...) \
 		SDL_LogCritical(category, "%s:%d: " format, __func__, __LINE__, __VA_ARGS__)

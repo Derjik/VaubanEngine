@@ -22,10 +22,13 @@ TrueTypeFont::TrueTypeFont(
 	_font = std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)>(
 		TTF_OpenFontIndex(filePath.c_str(), size, face), &TTF_CloseFont);
 
-	if(_font == nullptr)
+	if (_font == nullptr)
+	{
+		char const * ttfError(TTF_GetError());
 		THROW(Exception,
 			"Cannot open font : TTF error '%s'",
 			TTF_GetError());
+	}
 
 	DEBUG(SDL_LOG_CATEGORY_APPLICATION,
 		"TrueTypeFont: name %s ascent %d, "
@@ -161,14 +164,17 @@ std::pair<int, int> TrueTypeFont::getTextSize(std::string const text) const
 	return result;
 }
 
-SDL_Surface * TrueTypeFont::renderSolid(std::string const & text,
-					SDL_Color const & color)
+SDL_Surface * TrueTypeFont::renderSolid(
+	std::string const & text,
+	SDL_Color const & color)
 {
 	SDL_Surface * renderedText(TTF_RenderText_Solid(
 		_font.get(), text.c_str(), color));
 
 	if(renderedText == nullptr)
-		THROW(Exception, "Cannot render text : TTF error '%s'", TTF_GetError());
+		THROW(Exception,
+			"Cannot render text : TTF error '%s'",
+			TTF_GetError());
 
 	return renderedText;
 }
