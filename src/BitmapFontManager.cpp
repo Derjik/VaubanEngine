@@ -54,13 +54,22 @@ void BitmapFontManager::preload(
 	}
 }
 
-BitmapFont * BitmapFontManager::getFont(std::string const & name, int const size)
+BitmapFont * BitmapFontManager::getFont(
+	std::string const & name,
+	int const size)
 {
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
+
 	BitmapFont * font(nullptr);
 
 	auto const fontIterator = _fonts.find(make_pair(name, size));
 	if(fontIterator == _fonts.end())
 	{
+		DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+			"Font '%s' size '%d' not generated, generating",
+			name.c_str(), size);
+
 		try
 		{
 			BitmapFont bitmapFont(_trueTypeFontManager, name, size, _renderer);

@@ -128,7 +128,7 @@ void Introspection::fetchRenderDriverInfo(SDL_RendererInfo const & rendererInfo)
 		<< "has " << rendererInfo.num_texture_formats << " pixel formats"
 		<< std::endl;
 
-	for (int formatIndex(0);
+	for (Uint32 formatIndex(0);
 		formatIndex < rendererInfo.num_texture_formats;
 		++formatIndex)
 		_synthesis << "\t\t" << SDL_GetPixelFormatName(

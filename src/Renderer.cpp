@@ -116,7 +116,7 @@ void Renderer::printText(std::string const & text,
 
 	BitmapFont * font(_bitmapFontManager->getFont(fontName, size));
 	if (font)
-		font->renderText(text, color, destination, _renderer.get());
+		font->renderText(text, color, destination);
 	else
 		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"Cannot print dynamic text : missing font '%s' size '%d'",
@@ -131,7 +131,7 @@ void Renderer::printDebugText(std::string const & fontName,
 {
 	BitmapFont * font = _bitmapFontManager->getFont(fontName, size);
 	if (font)
-		font->renderDebug(_renderer.get(), xDest, yDest);
+		font->renderDebug(xDest, yDest);
 	else
 		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"Cannot print debug text : missing font '%s' size '%d'",

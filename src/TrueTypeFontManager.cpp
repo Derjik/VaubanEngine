@@ -11,8 +11,6 @@ TrueTypeFont * TrueTypeFontManager::getFont(
 	std::string const & name,
 	int const size)
 {
-	if (name.empty())
-		THROW(Exception, "Received empty 'name'");
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
 	if (_fontNames.find(name) == _fontNames.end())

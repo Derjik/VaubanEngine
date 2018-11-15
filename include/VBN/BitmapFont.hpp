@@ -11,6 +11,8 @@ class TrueTypeFontManager;
 class BitmapFont
 {
 	private:
+		SDL_Renderer * _sdlRenderer;
+
 		std::string _alphabet;
 		Texture _texture;
 		std::array<TrueTypeFont::GlyphMetrics, UCHAR_MAX> _glyphMetrics;
@@ -30,12 +32,11 @@ class BitmapFont
 
 		void renderText(std::string const & text,
 			SDL_Color const & color,
-			SDL_Rect const & destination,
-			SDL_Renderer * renderer);
+			SDL_Rect const & destination);
 
-		void renderDebug(SDL_Renderer * renderer,
-				int const xDest,
-				int const yDest);
+		void renderDebug(
+			int const xDest,
+			int const yDest);
 
 		Texture const * getTexture(void);
 		std::array<SDL_Rect, UCHAR_MAX> getClips(void) const;

@@ -10,13 +10,16 @@
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
-BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
-						std::string const & name, int size,
-						SDL_Renderer * renderer) :
-						_texture(Texture::fromScratch(renderer,
-									SDL_PIXELFORMAT_RGBA32,
-									SDL_TEXTUREACCESS_STATIC,
-									10, 10))
+BitmapFont::BitmapFont(
+	std::shared_ptr<TrueTypeFontManager> ttfManager,
+	std::string const & name,
+	int size,
+	SDL_Renderer * renderer) :
+	_sdlRenderer(renderer),
+	_texture(Texture::fromScratch(renderer,
+				SDL_PIXELFORMAT_RGBA32,
+				SDL_TEXTUREACCESS_STATIC,
+				10, 10))
 {
 	if (!ttfManager)
 		THROW(Exception, "Received nullptr 'ttfManager'");
@@ -24,7 +27,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 		THROW(Exception, "Received empty 'name'");
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
-	if (renderer == nullptr)
+	if (_sdlRenderer == nullptr)
 		THROW(Exception, "Received nullptr 'renderer'");
 
 	TrueTypeFont * font = ttfManager->getFont(name, size);
@@ -121,6 +124,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 	}
 
 	/* Convert surface into a texture for accelerated rendering */
+	// TODO : memleak check
 	_texture = std::move(Texture::fromSurface(renderer, internalSurface));
 
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
@@ -129,6 +133,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 }
 
 BitmapFont::BitmapFont(BitmapFont && other) :
+	_sdlRenderer(std::move(other._sdlRenderer)),
 	_alphabet(std::move(other._alphabet)),
 	_texture(std::move(other._texture)),
 	_glyphMetrics(std::move(other._glyphMetrics)),
@@ -150,8 +155,7 @@ BitmapFont::~BitmapFont(void)
 
 void BitmapFont::renderText(std::string const & text,
 	SDL_Color const & color,
-	SDL_Rect const & destination,
-	SDL_Renderer * renderer)
+	SDL_Rect const & destination)
 {
 	int	maxLength(destination.w),
 		maxLines(destination.h / _lineSkip);
@@ -160,8 +164,14 @@ void BitmapFont::renderText(std::string const & text,
 
 	/* DEBUG */
 	/* Draw destination rectangle */
-	SDL_SetRenderDrawColor(renderer, 128, 0, 255, 255);
-	SDL_RenderDrawRect(renderer, &destination);
+	if (SDL_SetRenderDrawColor(_sdlRenderer, 128, 0, 255, 255))
+		ERROR(SDL_LOG_CATEGORY_APPLICATION,
+			"Could not set renderer color : SDL error '%s'",
+			SDL_GetError());
+	if (SDL_RenderDrawRect(_sdlRenderer, &destination))
+		ERROR(SDL_LOG_CATEGORY_APPLICATION,
+			"Could not render rectangle : SDL error '%s'",
+			SDL_GetError());
 
 	/* Apply color and alpha modulation */
 	_texture.setColorAlphaMod(color);
@@ -259,7 +269,7 @@ void BitmapFont::renderText(std::string const & text,
 						metrics.width,
 						_lineSkip};
 
-			error |= (SDL_RenderCopy(renderer,
+			error |= (SDL_RenderCopy(_sdlRenderer,
 						_texture.getSDLTexture(),
 						&source,
 						&glyphDest) != 0);
@@ -277,20 +287,20 @@ void BitmapFont::renderText(std::string const & text,
 	}
 }
 
-void BitmapFont::renderDebug(SDL_Renderer * renderer,
-				int const xDest,
-				int const yDest)
+void BitmapFont::renderDebug(
+	int const xDest,
+	int const yDest)
 {
 	SDL_Rect dest{xDest, yDest, _texture.getWidth(), _texture.getHeight()};
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderCopy(renderer, _texture.getSDLTexture(), nullptr, &dest);
+	SDL_SetRenderDrawColor(_sdlRenderer, 255, 255, 255, 255);
+	SDL_RenderCopy(_sdlRenderer, _texture.getSDLTexture(), nullptr, &dest);
 
-	SDL_SetRenderDrawColor(renderer, 255, 69, 0, 255);
+	SDL_SetRenderDrawColor(_sdlRenderer, 255, 69, 0, 255);
 	for(auto rect : _clips)
 	{
 		rect.x += xDest;
 		rect.y += yDest;
-		SDL_RenderDrawRect(renderer, &rect);
+		SDL_RenderDrawRect(_sdlRenderer, &rect);
 	}
 }
 
