@@ -19,7 +19,7 @@ BitmapFont::BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 									10, 10))
 {
 	if (!ttfManager)
-		THROW(Exception, "Received nullptr 'ttfMaanager'");
+		THROW(Exception, "Received nullptr 'ttfManager'");
 	if (name.empty())
 		THROW(Exception, "Received empty 'name'");
 	if (size <= 0)

@@ -21,6 +21,7 @@ class WindowManager
 		WindowManager & operator = (WindowManager &&) = delete;
 		~WindowManager(void);
 
+		// May throw
 		void add(
 			std::string const & name,
 			std::string const & title,

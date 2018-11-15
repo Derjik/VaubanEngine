@@ -16,6 +16,19 @@ Window::Window(std::string const & title,
 	_renderer(nullptr),
 	_bitmapFontManager(nullptr)
 {
+	if (title.empty())
+		THROW(Exception, "Received empty 'title'");
+	if (xPosition <= 0)
+		THROW(Exception, "Received 'x' <= 0");
+	if (yPosition <= 0)
+		THROW(Exception, "Received 'y' <= 0");
+	if (windowWidth <= 0)
+		THROW(Exception, "Received 'w' <= 0");
+	if (windowHeight <= 0)
+		THROW(Exception, "Received 'h' <= 0");
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
+
 	_window = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>(
 		SDL_CreateWindow(title.c_str(),
 						xPosition, yPosition,

@@ -12,7 +12,9 @@ class Platform
 		std::unique_ptr<GameControllerManager> _gameControllerManager;
 
 	public:
-		Platform(WindowManager * windowManager,
+		// May throw
+		Platform(
+			WindowManager * windowManager,
 			GameControllerManager * gameControllerManager);
 		Platform(Platform const &) = delete;
 		Platform & operator = (Platform const &) = delete;

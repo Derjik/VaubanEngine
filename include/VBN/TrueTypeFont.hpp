@@ -24,6 +24,7 @@ class TrueTypeFont
 			int advance;
 		};
 
+		// May throw
 		TrueTypeFont(std::string const & filePath,
 			unsigned const size,
 			unsigned const face = 0);
@@ -54,6 +55,7 @@ class TrueTypeFont
 
 		std::pair<int, int> getTextSize(std::string const text) const;
 
+		// May throw
 		SDL_Surface * renderSolid(std::string const & text,
 					SDL_Color const & color);
 };

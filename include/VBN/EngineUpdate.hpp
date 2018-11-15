@@ -20,6 +20,7 @@ class EngineUpdate
 		~EngineUpdate(void);
 
 		/* API for the EventHandler */
+		// May throw
 		void pushGameContext(std::shared_ptr<IGameContext>);
 		void popGameContext(void);
 

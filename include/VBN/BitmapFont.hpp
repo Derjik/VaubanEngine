@@ -18,6 +18,7 @@ class BitmapFont
 		int _lineSkip;
 
 	public:
+		// May throw
 		BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
 			std::string const & name, int size,
 			SDL_Renderer * renderer);

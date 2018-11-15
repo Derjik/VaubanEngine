@@ -16,6 +16,7 @@ class BitmapFontManager
 		std::map<std::pair<std::string, int>, BitmapFont> _fonts;
 
 	public:
+		// May throw
 		BitmapFontManager(std::shared_ptr<TrueTypeFontManager> trueTypeFontManager,
 							SDL_Renderer * renderer);
 		BitmapFontManager(BitmapFontManager const & other) = delete;

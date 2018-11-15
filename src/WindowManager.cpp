@@ -29,18 +29,6 @@ void WindowManager::add(
 {
 	if (name.empty())
 		THROW(Exception, "Received empty 'name'");
-	if (title.empty())
-		THROW(Exception, "Received empty 'title'");
-	if (x <= 0)
-		THROW(Exception, "Received 'x' <= 0");
-	if (y <= 0)
-		THROW(Exception, "Received 'y' <= 0");
-	if (w <= 0)
-		THROW(Exception, "Received 'w' <= 0");
-	if (h <= 0)
-		THROW(Exception, "Received 'h' <= 0");
-	if (!ttfManager)
-		THROW(Exception, "Received nullptr 'ttfManager'");
 
 	Window win(
 		title,

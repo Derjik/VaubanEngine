@@ -38,6 +38,7 @@ class Window
 		void updateCanvasFrame(SDL_Rect const & outerSurface);
 
 	public:
+		// May throw
 		Window(std::string const & title,
 			int xPosition, int yPosition,
 			int windowWidth, int windowHeight,

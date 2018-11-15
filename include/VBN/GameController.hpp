@@ -16,6 +16,7 @@ class GameController
 		bool _rumbleSupport;
 
 	public:
+		// May throw
 		GameController(unsigned const deviceIndex);
 		GameController(GameController const & other) = delete;
 		GameController(GameController && other);

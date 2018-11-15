@@ -13,12 +13,13 @@ class TrueTypeFontManager
 		std::map<std::pair<std::string, int>, TrueTypeFont> _fonts;
 
 	public:
-		TrueTypeFontManager(std::set<std::string>  const & fontNames);
+		TrueTypeFontManager(std::set<std::string> const & fontNames);
 		TrueTypeFontManager(TrueTypeFontManager const &) = delete;
 		TrueTypeFontManager(TrueTypeFontManager &&) = delete;
 		TrueTypeFontManager & operator = (TrueTypeFontManager const &) = delete;
 		TrueTypeFontManager & operator = (TrueTypeFontManager &&) = delete;
 
+		// May throw
 		TrueTypeFont * getFont(std::string const & name, int const size);
 };
 

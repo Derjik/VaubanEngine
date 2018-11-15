@@ -15,6 +15,7 @@ class Renderer
 
 	public:
 		/* Constructors */
+		// May throw
 		Renderer(SDL_Window * window,
 			int index,
 			Uint32 flags,
@@ -40,6 +41,7 @@ class Renderer
 		void setScale(float const x, float const y);
 
 		/* Texture management */
+		// May throw
 		void addTextTexture(
 			std::string const & name,
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
@@ -47,6 +49,7 @@ class Renderer
 			std::string const & text,
 			int const size,
 			SDL_Color const & color);
+		// May throw
 		void addImageTexture(
 			std::string const & name,
 			std::string const & path);
@@ -68,6 +71,7 @@ class Renderer
 			std::string const & clipName,
 			SDL_Rect const & destination);
 
+		// May throw
 		void printText(std::string const & text,
 				std::string const & fontName,
 				int const size,

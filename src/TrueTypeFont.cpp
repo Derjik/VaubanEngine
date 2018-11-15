@@ -24,12 +24,9 @@ TrueTypeFont::TrueTypeFont(
 		TTF_CloseFont);
 
 	if (_font == nullptr)
-	{
-		char const * ttfError(TTF_GetError());
 		THROW(Exception,
 			"Cannot open font : TTF error '%s'",
 			TTF_GetError());
-	}
 
 	DEBUG(SDL_LOG_CATEGORY_APPLICATION,
 		"TrueTypeFont: name %s ascent %d, "
