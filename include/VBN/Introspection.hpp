@@ -27,6 +27,7 @@ class Introspection
 
 	public:
 		static void perform(void);
+		static void log(void);
 		static void insertRendererInfo(SDL_Renderer * renderer);
 };
 
