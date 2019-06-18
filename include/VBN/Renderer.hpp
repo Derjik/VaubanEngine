@@ -17,7 +17,6 @@ class Renderer
 		/* Constructors */
 		// May throw
 		Renderer(SDL_Window * window,
-			int index,
 			Uint32 flags,
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
 		Renderer(Renderer const &) = delete;

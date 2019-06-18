@@ -42,7 +42,6 @@ Window::Window(std::string const & title,
 
 	_renderer = std::unique_ptr<Renderer>(new Renderer(
 			_window.get(),
-			1,
 			SDL_RENDERER_ACCELERATED,
 			ttfManager));
 

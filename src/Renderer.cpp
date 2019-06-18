@@ -6,7 +6,6 @@
 #define DEFAULT_TEXTURE "default"
 
 Renderer::Renderer(SDL_Window * window,
-	int index,
 	Uint32 flags,
 	std::shared_ptr<TrueTypeFontManager> ttfManager) :
 	_renderer(nullptr, &SDL_DestroyRenderer),
