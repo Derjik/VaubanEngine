@@ -17,7 +17,7 @@ WindowManager::~WindowManager(void)
 		this);
 }
 
-void WindowManager::add(
+void WindowManager::addWindow(
 	std::string const & name,
 	std::string const & title,
 	int x, int y,

@@ -22,7 +22,7 @@ class WindowManager
 		~WindowManager(void);
 
 		// May throw
-		void add(
+		void addWindow(
 			std::string const & name,
 			std::string const & title,
 			int x, int y,
