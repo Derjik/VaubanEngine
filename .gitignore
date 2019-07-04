@@ -15,3 +15,7 @@ x64/
 *.user
 *.filters
 *.vcxproj
+
+# Doxygen files
+doc/
+Doxyfile
