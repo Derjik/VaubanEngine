@@ -45,16 +45,16 @@ void Engine::run(float const gameTicksPerMillisecond)
 /* ---- Begin chrono measure */
 		frameStartTime = SDL_GetTicks();
 
-		/* Input */
+		/* Input (controller) */
 		while (SDL_PollEvent(&ev) != 0)
 			_stack.back()->handleEvent(ev, update);
 
-		/* Time */
+		/* Time  (model) */
 		_stack.back()->elapse(
 			(Uint32)((float)(nominalFrameDuration) * gameTicksPerMillisecond),
 			update);
 
-		/* Output */
+		/* Output (view) */
 		_stack.back()->display();
 
 		frameDuration = SDL_GetTicks() - frameStartTime;
