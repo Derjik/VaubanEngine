@@ -18,8 +18,15 @@ class Window
 		enum RatioType
 		{
 			FIXED_RATIO_FRAME,
+			// Creates a sub-frame with black borders when the window is bigger
+			// than intended resolution
+
 			FIXED_RATIO_STRETCH,
+			// Stretches display to ensure intended resolution, using black
+			// borders to fill gaps
+
 			DYNAMIC_RATIO
+			// Resolution depends on window size
 		};
 
 	private:
