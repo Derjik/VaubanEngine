@@ -55,7 +55,7 @@ BitmapFont::BitmapFont(
 		do
 		{
 			/* Skip unprintable characters */
-			if(std::isprint(currentCharacter))
+			if (std::isprint(currentCharacter))
 			{
 				lineString.append(1, currentCharacter);
 				_glyphMetrics[currentCharacter] =
@@ -98,7 +98,7 @@ BitmapFont::BitmapFont(
 
 		/* Update longest line width */
 		Surface & lastLineInserted(lineSurfaces.back());
-		if(lastLineInserted.getSurface()->w > maxWidth)
+		if (lastLineInserted.getSurface()->w > maxWidth)
 			maxWidth = lastLineInserted.getSurface()->w;
 
 		++currentLine;
@@ -159,7 +159,7 @@ void BitmapFont::renderText(std::string const & text,
 {
 	int	maxLength(destination.w),
 		maxLines(destination.h / _lineSkip);
-	if(maxLines < 1 || maxLength < 1)
+	if (maxLines < 1 || maxLength < 1)
 		return;
 
 	/* DEBUG */
@@ -195,21 +195,21 @@ void BitmapFont::renderText(std::string const & text,
 		{
 			char currentCharacter = text.at(index);
 
+			/* Ending the whole base string */
+			if (index == text.length() - 1)
+				lineEnd = index;
 			/* Beginning a word */
-			if(!onWord && !std::isspace(currentCharacter))
+			else if (!onWord && !std::isspace(currentCharacter))
 			{
 				onWord = true;
 				lastWordBegin = index;
 			}
 			/* Ending a word */
-			else if(std::isspace(currentCharacter))
+			else if (std::isspace(currentCharacter))
 			{
 				onWord = false;
 				lineEnd = index-1;
 			}
-			/* Ending the whole base string */
-			else if(index == text.length() - 1)
-				lineEnd = index;
 
 			lineAdvance += _glyphMetrics[currentCharacter].advance;
 			++index;
@@ -222,18 +222,18 @@ void BitmapFont::renderText(std::string const & text,
 				lineEnd,
 				currentCharacter,
 				text.substr(lineBegin, lineEnd-lineBegin+1).c_str());
-				*/
+			*/
 		}
 
 		/* Line is too large to be displayed in destination rectangle */
-		if(lineEnd == lineBegin)
+		if (lineEnd == lineBegin)
 			return;
 
 		lines.push_back(std::make_pair(lineBegin, lineEnd));
 		++lineIndex;
 
 		/* If we were on a word when line cut occurred */
-		if(onWord)
+		if (onWord)
 			lineBegin = lastWordBegin;
 		else
 			lineBegin = index;
@@ -278,7 +278,7 @@ void BitmapFont::renderText(std::string const & text,
 		}
 	}
 
-	if(error)
+	if (error)
 	{
 		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"BitmapFont::renderText: "
