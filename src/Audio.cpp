@@ -9,7 +9,7 @@ struct Audio::Sample
 	Uint32 dataLength;
 };
 
-std::array<Audio::Sample, 2> Audio::_sounds;
+Audio::Sample Audio::_sounds;
 SDL_AudioDeviceID Audio::_device;
 SDL_AudioSpec Audio::_wantedSpec;
 SDL_AudioSpec Audio::_currentSpec;
@@ -38,42 +38,31 @@ void Audio::init(void)
 
 void Audio::mixaudio(void *udata, Uint8 * stream, int length)
 {
-	Uint32 amount;
+	SDL_memset(stream, 0, length);
+	if (_sounds.data && _sounds.dataPosition < _sounds.dataLength)
+	{
+		int toPlay = _sounds.dataLength - _sounds.dataPosition;
+		if (toPlay < length)
+			length = toPlay;
 
-	for (int i = 0; i < NUM_SOUNDS; ++i) {
-		amount = (_sounds[i].dataLength - _sounds[i].dataPosition);
-
-		if (amount > length)
-			amount = length;
+		DEBUG(SDL_LOG_CATEGORY_AUDIO, "Position : %d ; Length : %d ; Add %d bytes", _sounds.dataPosition, _sounds.dataLength, length);
 
 		SDL_MixAudioFormat(stream,
-			&_sounds[i].data[_sounds[i].dataPosition],
-			_currentSpec.format,
-			amount,
-			SDL_MIX_MAXVOLUME);
-
-		_sounds[i].dataPosition += amount;
+							&_sounds.data[_sounds.dataPosition],
+							_currentSpec.format,
+							length,
+							SDL_MIX_MAXVOLUME);
+		_sounds.dataPosition += length;
 	}
 }
 
 void Audio::playSound(char const * file)
 {
-	int index;
+	DEBUG(SDL_LOG_CATEGORY_AUDIO, "Play %s", file);
 	SDL_AudioSpec inputWave;
-	Uint8 *audioData;
+	Uint8 * audioData;
 	Uint32 dataLength;
-	SDL_AudioCVT converter;
 
-	/* Look for an empty (or finished) sound slot */
-	for (index = 0; index < NUM_SOUNDS; ++index) {
-		if (_sounds[index].dataPosition == _sounds[index].dataLength) {
-			break;
-		}
-	}
-	if (index == NUM_SOUNDS)
-		return;
-
-	/* Load the sound file and convert it to 16-bit stereo at 22kHz */
 	if (SDL_LoadWAV(file, &inputWave, &audioData, &dataLength) == NULL) {
 		ERROR(SDL_LOG_CATEGORY_AUDIO,
 				"Couldn't load WAV file %s : %s",
@@ -81,6 +70,8 @@ void Audio::playSound(char const * file)
 				SDL_GetError());
 		return;
 	}
+
+	SDL_AudioCVT converter;
 	SDL_BuildAudioCVT(
 		&converter,
 		inputWave.format,
@@ -89,21 +80,20 @@ void Audio::playSound(char const * file)
 		_currentSpec.format,
 		_currentSpec.channels,
 		_currentSpec.freq);
+
 	converter.buf = (Uint8*)(malloc(dataLength*converter.len_mult));
 	memcpy(converter.buf, audioData, dataLength);
 	converter.len = dataLength;
 	SDL_ConvertAudio(&converter);
+
 	SDL_FreeWAV(audioData);
 
-	/* Put the sound data in the slot (it starts playing immediately) */
-	if (_sounds[index].data) {
-		free(_sounds[index].data);
-	}
 	SDL_LockAudioDevice(_device);
-	_sounds[index].data = converter.buf;
-	_sounds[index].dataLength = converter.len_cvt;
-	_sounds[index].dataPosition = 0;
+	_sounds.data = converter.buf;
+	_sounds.dataLength = converter.len_cvt;
+	_sounds.dataPosition = 0;
 	SDL_UnlockAudioDevice(_device);
+	DEBUG(SDL_LOG_CATEGORY_AUDIO, "Added %d bytes to queue", converter.len_cvt);
 }
 
 void Audio::getStatus(void)

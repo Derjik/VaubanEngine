@@ -9,7 +9,7 @@ class Audio
 {
 	public:
 		struct Sample;
-		static std::array<Sample, 2> _sounds;
+		static Sample _sounds;
 		static SDL_AudioDeviceID _device;
 		static SDL_AudioSpec _wantedSpec;
 		static SDL_AudioSpec _currentSpec;
