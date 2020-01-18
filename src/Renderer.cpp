@@ -150,6 +150,18 @@ void Renderer::setDrawColor(
 			SDL_GetError());
 }
 
+void Renderer::setDrawColor(SDL_Color const & color)
+{
+	if (SDL_SetRenderDrawColor(_renderer.get(),
+		color.r,
+		color.g,
+		color.b,
+		color.a))
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Cannot set renderer draw color : SDL error '%s'",
+			SDL_GetError());
+}
+
 void Renderer::setBlendMode(SDL_BlendMode const & blendMode)
 {
 	if (SDL_SetRenderDrawBlendMode(_renderer.get(), blendMode))

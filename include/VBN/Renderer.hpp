@@ -29,6 +29,7 @@ class Renderer
 			Uint8 const green,
 			Uint8 const blue,
 			Uint8 const alpha);
+		void setDrawColor(SDL_Color const & color);
 		void setBlendMode(
 			SDL_BlendMode const & blendMode);
 		void setLogicalSize(
