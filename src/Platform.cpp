@@ -3,14 +3,18 @@
 #include <VBN/Exceptions.hpp>
 
 Platform::Platform(WindowManager * windowManager,
-	GameControllerManager * gameControllerManager) :
+	GameControllerManager * gameControllerManager,
+	Mixer * mixer) :
 	_windowManager(windowManager),
-	_gameControllerManager(gameControllerManager)
+	_gameControllerManager(gameControllerManager),
+	_mixer(mixer)
 {
 	if (!windowManager)
 		THROW(Exception, "Received nullptr 'windowManager'");
 	if (!gameControllerManager)
 		THROW(Exception, "Received nullptr 'gameControllerManager'");
+	if (!mixer)
+		THROW(Exception, "Received nullptr 'mixer'");
 
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"Build Platform %p (WindowManager %p ; GameControllerManager %p)",
@@ -36,4 +40,9 @@ WindowManager * Platform::getWindowManager(void)
 GameControllerManager * Platform::getGameControllerManager(void)
 {
 	return _gameControllerManager.get();
+}
+
+Mixer * Platform::getMixer(void)
+{
+	return _mixer.get();
 }
