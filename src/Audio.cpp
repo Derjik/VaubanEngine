@@ -16,8 +16,6 @@ SDL_AudioSpec Audio::_currentSpec;
 
 void Audio::init(void)
 {
-	SDL_AudioSpec wantedFormat, obtainedFormat;
-
 	_wantedSpec.freq = 48000;
 	_wantedSpec.format = AUDIO_F32;
 	_wantedSpec.channels = 2;
