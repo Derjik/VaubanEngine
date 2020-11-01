@@ -153,13 +153,58 @@ BitmapFont::~BitmapFont(void)
 		this);
 }
 
+unsigned int BitmapFont::computeLineEnd(
+	std::string const & text,
+	unsigned int cursor,
+	unsigned int maxWidth) const
+{
+	unsigned int width(0), lastWordEnd(cursor), result(0);
+	char currentCharacter(0), previousCharacter;
+
+	if (cursor >= text.length())
+		return 0;
+
+	while (width < maxWidth && cursor < text.length())
+	{
+		currentCharacter = text.at(cursor);
+		width += _glyphMetrics[currentCharacter].advance;
+		if (cursor > 0)
+		{
+			previousCharacter = text.at(cursor - 1);
+			if (std::isspace(currentCharacter) &&
+				!std::isspace(previousCharacter))
+				lastWordEnd = cursor - 1;
+		}
+		++cursor;
+	}
+
+	if (width > maxWidth)
+	{
+		result = cursor - 2;
+	}
+	else /* width == maxWidth */
+	{
+		result = cursor - 1;
+	}
+
+	if (result + 1 < text.length())
+	{
+		/* We're cutting the line right in the middle of a word */
+		if(!std::isspace(text.at(result + 1)))
+			/* Finish the line at the last detected word's end instead */
+			result = lastWordEnd;
+	}
+
+	return result;
+}
+
 void BitmapFont::renderText(std::string const & text,
 	SDL_Color const & color,
 	SDL_Rect const & destination)
 {
-	int	maxLength(destination.w),
+	int	maxLineWidth(destination.w),
 		maxLines(destination.h / _lineSkip);
-	if (maxLines < 1 || maxLength < 1)
+	if (maxLines < 1 || maxLineWidth < 1)
 		return;
 
 	/* DEBUG */
@@ -176,91 +221,36 @@ void BitmapFont::renderText(std::string const & text,
 	/* Apply color and alpha modulation */
 	_texture.setColorAlphaMod(color);
 
+	/* First and last character for each line */
 	std::vector<std::pair<int, int>> lines;
-	unsigned int index(0);
 
-	int	lineAdvance(0),
-		lineIndex(0),
-		lineBegin(0),
-		lineEnd(0),
-		lastWordBegin(0);
+	unsigned int lineNumber(0), lineBegin(0), lineEnd(0);
 
-	/* Process N lines */
+	/* Lines */
 	do
 	{
-		bool onWord = false;
-		lineAdvance = 0;
+		while (lineBegin < text.length() && std::isspace(text.at(lineBegin)))
+			++lineBegin;
 
-		while(index < text.length() && lineAdvance < maxLength)
-		{
-			char currentCharacter = text.at(index);
-
-			/* Ending the whole base string */
-			if (index == text.length() - 1)
-				lineEnd = index;
-			/* Beginning a word */
-			else if (!onWord && !std::isspace(currentCharacter))
-			{
-				onWord = true;
-				lastWordBegin = index;
-			}
-			/* Ending a word */
-			else if (std::isspace(currentCharacter))
-			{
-				onWord = false;
-				lineEnd = index-1;
-			}
-
-			lineAdvance += _glyphMetrics[currentCharacter].advance;
-			++index;
-
-			/*
-			VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-				"L%d(%d->%d) %c '%s'",
-				lineIndex,
-				lineBegin,
-				lineEnd,
-				currentCharacter,
-				text.substr(lineBegin, lineEnd-lineBegin+1).c_str());
-			*/
-		}
-
-		/* Line is too large to be displayed in destination rectangle */
-		if (lineEnd == lineBegin)
-			return;
-
+		lineEnd = computeLineEnd(text, lineBegin, maxLineWidth);
 		lines.push_back(std::make_pair(lineBegin, lineEnd));
-		++lineIndex;
-
-		/* If we were on a word when line cut occurred */
-		if (onWord)
-			lineBegin = lastWordBegin;
-		else
-			lineBegin = index;
-	} while(lineIndex < maxLines && index < text.length());
+		++lineNumber;
+		lineBegin = lineEnd + 1;
+	} while(lineNumber < maxLines && lineBegin < text.length());
 
 	bool error(false);
 	for(auto lineIterator = lines.begin() ;
 		lineIterator != lines.end() ;
 		++lineIterator)
 	{
-		std::string tempo =
+		std::string substring =
 			text.substr(lineIterator->first,
 				lineIterator->second - lineIterator->first +1);
 
 		int lineNumber = lineIterator - lines.begin();
 
-		/*
-		VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-			"L%d(%d->%d) '%s'",
-			lineNumber,
-			lineIterator->first,
-			lineIterator->second,
-			tempo.c_str());
-			*/
-
 		int currentAdvance(0);
-		for(char c : tempo)
+		for(char c : substring)
 		{
 			TrueTypeFont::GlyphMetrics metrics = _glyphMetrics[c];
 			SDL_Rect source = _clips[c];

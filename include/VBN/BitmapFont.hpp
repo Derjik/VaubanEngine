@@ -19,6 +19,11 @@ class BitmapFont
 		std::array<SDL_Rect, UCHAR_MAX> _clips;
 		int _lineSkip;
 
+		unsigned int computeLineEnd(
+			std::string const & text,
+			unsigned int startPoint,
+			unsigned int maxWidthPx) const;
+
 	public:
 		// May throw
 		BitmapFont(std::shared_ptr<TrueTypeFontManager> ttfManager,
