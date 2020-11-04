@@ -170,6 +170,13 @@ std::array<int, 4> Window::getBorderSize(void) const
 	return borderSize;
 }
 
+std::pair<int, int> Window::getSize(void) const
+{
+	std::pair<int, int> windowSize;
+	SDL_GetWindowSize(_window.get(), &windowSize.first, &windowSize.second);
+	return windowSize;
+}
+
 float Window::getBrightness(void) const
 {
 	return SDL_GetWindowBrightness(_window.get());

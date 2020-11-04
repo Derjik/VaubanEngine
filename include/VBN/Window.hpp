@@ -62,6 +62,7 @@ class Window
 		void toggleFullscreen(void);
 
 		std::array<int, 4> getBorderSize(void) const;
+		std::pair<int, int> getSize(void) const;
 		float getBrightness(void) const;
 		int getCurrentDisplayIndex(void) const;
 		Renderer * getRenderer(void);
