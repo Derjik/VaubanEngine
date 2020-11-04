@@ -159,14 +159,23 @@ unsigned int BitmapFont::computeLineEnd(
 	unsigned int maxWidth) const
 {
 	unsigned int width(0), lastWordEnd(cursor), result(0);
-	char currentCharacter(0), previousCharacter;
+	char currentCharacter(0), previousCharacter(0);
 
 	if (cursor >= text.length())
 		return 0;
 
-	while (width < maxWidth && cursor < text.length())
+	/* Browse characters until either of those conditions are met :
+	 * - End of text
+	 * - Max width has been reached or exceeded
+	 * - '\n' found
+	 */
+	while (cursor < text.length() && width < maxWidth)
 	{
 		currentCharacter = text.at(cursor);
+		/* Special case : newline character */
+		if (currentCharacter == '\n')
+			return cursor;
+
 		width += _glyphMetrics[currentCharacter].advance;
 		if (cursor > 0)
 		{
@@ -178,15 +187,13 @@ unsigned int BitmapFont::computeLineEnd(
 		++cursor;
 	}
 
+	/* Handle pixel width overflow */
 	if (width > maxWidth)
-	{
 		result = cursor - 2;
-	}
-	else /* width == maxWidth */
-	{
+	else
 		result = cursor - 1;
-	}
 
+	/* If we're not at the end of the text */
 	if (result + 1 < text.length())
 	{
 		/* We're cutting the line right in the middle of a word */
@@ -207,7 +214,7 @@ void BitmapFont::renderText(std::string const & text,
 	if (maxLines < 1 || maxLineWidth < 1)
 		return;
 
-	/* DEBUG */
+	/* -----------8<----------- DEBUG -----------8<----------- */
 	/* Draw destination rectangle */
 	if (SDL_SetRenderDrawColor(_sdlRenderer, 128, 0, 255, 255))
 		ERROR(SDL_LOG_CATEGORY_APPLICATION,
@@ -217,6 +224,7 @@ void BitmapFont::renderText(std::string const & text,
 		ERROR(SDL_LOG_CATEGORY_APPLICATION,
 			"Could not render rectangle : SDL error '%s'",
 			SDL_GetError());
+	/* ----------8<---------- END DEBUG ----------8<---------- */
 
 	/* Apply color and alpha modulation */
 	_texture.setColorAlphaMod(color);
@@ -224,20 +232,25 @@ void BitmapFont::renderText(std::string const & text,
 	/* First and last character for each line */
 	std::vector<std::pair<int, int>> lines;
 
+	/* Line computation loop */
 	unsigned int lineNumber(0), lineBegin(0), lineEnd(0);
-
-	/* Lines */
 	do
 	{
+		/* Skip any whitespace prefixing the line */
 		while (lineBegin < text.length() && std::isspace(text.at(lineBegin)))
 			++lineBegin;
 
+		/* Compute line end using internal method */
 		lineEnd = computeLineEnd(text, lineBegin, maxLineWidth);
 		lines.push_back(std::make_pair(lineBegin, lineEnd));
+
+		/* Increment line number & prepare next line beginning (if any) */
 		++lineNumber;
 		lineBegin = lineEnd + 1;
 	} while(lineNumber < maxLines && lineBegin < text.length());
 
+
+	/* Lines rendering loop */
 	bool error(false);
 	for(auto lineIterator = lines.begin() ;
 		lineIterator != lines.end() ;
