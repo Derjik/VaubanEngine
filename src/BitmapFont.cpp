@@ -162,7 +162,7 @@ unsigned int BitmapFont::computeLineEnd(
 	char currentCharacter(0), previousCharacter(0);
 
 	if (cursor >= text.length())
-		return 0;
+		return text.length();
 
 	/* Browse characters until either of those conditions are met :
 	 * - End of text
