@@ -2,9 +2,10 @@
 #include <iostream>
 #include <sstream>
 
+unsigned int Logger::_maxBufferLines = 24;
 std::deque<std::string> VBN_LogBuffer;
 
-void VBN_Log(SDL_LogPriority priority, int category, char const * format, ...)
+void Logger::log(SDL_LogPriority priority, int category, char const * format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -13,13 +14,13 @@ void VBN_Log(SDL_LogPriority priority, int category, char const * format, ...)
 	vsnprintf(buffer, SDL_MAX_LOG_MESSAGE - 1, format, ap);
 
 	VBN_LogBuffer.push_front(buffer);
-	while (VBN_LogBuffer.size() > VBN_LOG_BUFFER_LINES)
+	while (VBN_LogBuffer.size() > _maxBufferLines)
 		VBN_LogBuffer.pop_back();
 
 	va_end(ap);
 }
 
-std::string getLogAggregate(void)
+std::string Logger::lastLogs(void)
 {
 	std::ostringstream s;
 
