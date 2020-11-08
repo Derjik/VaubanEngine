@@ -44,8 +44,10 @@ Mixer::~Mixer(void)
 		this,
 		_deviceIndex);
 
+	/* Delete all stored sound effects & music tracks */
 	_effects.clear();
 	_musics.clear();
+	/* Close SDL_mixer audio facility */
 	Mix_CloseAudio();
 }
 

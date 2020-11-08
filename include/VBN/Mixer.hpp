@@ -8,16 +8,16 @@
 
 class Mixer
 {
-	public:
-		typedef std::unique_ptr<Mix_Chunk, decltype(&Mix_FreeChunk)> Chunk;
-		typedef std::unique_ptr<Mix_Music, decltype(&Mix_FreeMusic)> Music;
-
 	private:
 		// SDL Mixer Device ID
 		int _deviceIndex;
 
 		// Full or relative path to Audio Assets Directory
 		std::string _assetsDirectory;
+
+		// Internal typedefs for convenience
+		typedef std::unique_ptr<Mix_Chunk, decltype(&Mix_FreeChunk)> Chunk;
+		typedef std::unique_ptr<Mix_Music, decltype(&Mix_FreeMusic)> Music;
 
 		// std::string-indexed list of sound effects
 		std::map<std::string, Chunk> _effects;
