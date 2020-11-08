@@ -3,36 +3,38 @@
 #include <VBN/Exceptions.hpp>
 
 TrueTypeFontManager::TrueTypeFontManager(
+	std::string const & assetsDirectory,
 	std::set<std::string> const & fontNames) :
+	_assetsDirectory(assetsDirectory),
 	_fontNames(fontNames)
 {}
 
 TrueTypeFont * TrueTypeFontManager::getFont(
-	std::string const & name,
+	std::string const & fontName,
 	int const size)
 {
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
-	if (_fontNames.find(name) == _fontNames.end())
+	if (_fontNames.find(fontName) == _fontNames.end())
 		THROW(Exception,
 			"No '%s' font configured",
-			name.c_str());
+			fontName.c_str());
 
 	TrueTypeFont * font(nullptr);
 
-	auto const fontIterator = _fonts.find(make_pair(name, size));
+	auto const fontIterator = _fonts.find(make_pair(fontName, size));
 	if(fontIterator == _fonts.end())
 	{
 		DEBUG(SDL_LOG_CATEGORY_APPLICATION,
 			"Font '%s' size '%d' not loaded, loading",
-			name.c_str(), size);
+			fontName.c_str(), size);
 
 		try
 		{
-			TrueTypeFont ttFont(name + ".ttf", size);
+			TrueTypeFont ttFont(_assetsDirectory + fontName + ".ttf", size);
 
 			auto insertedPair(_fonts.emplace(
-				make_pair(name, size),
+				make_pair(fontName, size),
 				std::move(ttFont)));
 
 			font = (&insertedPair.first->second);
@@ -46,7 +48,7 @@ TrueTypeFont * TrueTypeFontManager::getFont(
 	{
 		DEBUG(SDL_LOG_CATEGORY_APPLICATION,
 			"Font '%s' size '%d' already loaded, reusing",
-			name.c_str(), size);
+			fontName.c_str(), size);
 
 		font = &fontIterator->second;
 	}
