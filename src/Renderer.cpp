@@ -280,6 +280,45 @@ void Renderer::copy(
 			SDL_GetError());
 }
 
+void Renderer::copyEx(
+	std::string const & textureName,
+	std::string const & clipName,
+	SDL_Rect const & destination,
+	double const angle,
+	SDL_Point const & center,
+	SDL_RendererFlip const & flip)
+{
+	auto textureIterator = _textures.find(textureName);
+	if (textureIterator == _textures.end())
+	{
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Cannot copy texture '%s' : not found in _textures",
+			textureName.c_str());
+		return;
+	}
+
+	SDL_Rect * clip = textureIterator->second.getClip(clipName);
+	if (!clip)
+	{
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"No clip '%s' on texture '%s'",
+			clipName.c_str(),
+			textureName.c_str());
+		return;
+	}
+
+	SDL_Texture * sdlTexture = textureIterator->second.getSDLTexture();
+
+	if (SDL_RenderCopyEx(_renderer.get(),
+		sdlTexture, clip, &destination,
+		angle, &center, flip))
+		ERROR(SDL_LOG_CATEGORY_ERROR,
+			"Cannot copy texture '%s' with clip '%s' : SDL error '%s'",
+			textureName.c_str(),
+			clipName.c_str(),
+			SDL_GetError());
+}
+
 void Renderer::present(void)
 {
 	SDL_RenderPresent(_renderer.get());

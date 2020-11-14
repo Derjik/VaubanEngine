@@ -71,6 +71,14 @@ class Renderer
 			std::string const & clipName,
 			SDL_Rect const & destination);
 
+		void copyEx(
+			std::string const & textureName,
+			std::string const & clipName,
+			SDL_Rect const & destination,
+			double const angle,
+			SDL_Point const & center,
+			SDL_RendererFlip const & flip);
+
 		// May throw
 		void printText(std::string const & text,
 				std::string const & fontName,
