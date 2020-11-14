@@ -19,6 +19,8 @@ Texture::Texture(SDL_Texture * rawTexture) :
 			&_width,
 			&_height);
 
+	_clips.emplace("", SDL_Rect{ 0, 0, _width, _height });
+
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"Build Texture %p (SDL_Texture %p)",
 		this,
