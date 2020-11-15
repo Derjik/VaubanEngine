@@ -7,13 +7,19 @@
 
 class TrueTypeFontManager;
 
+/*!
+ * Stores & retrieves Window objects 
+ */
 class WindowManager
 {
 	private:
+		/* Actual Window map using SDL-provided IDs for indexing */
 		std::map<Uint32, Window> _idToWindow;
+		/* User-friendly string-indexed map to name each Window */
 		std::map<std::string, Uint32> _stringToId;
 
 	public:
+		/* Constructors & destructor */
 		WindowManager(void);
 		WindowManager(WindowManager const &) = delete;
 		WindowManager(WindowManager &&) = delete;
@@ -21,6 +27,7 @@ class WindowManager
 		WindowManager & operator = (WindowManager &&) = delete;
 		~WindowManager(void);
 
+		/* Create a Window and add store it into the Manager */
 		// May throw
 		void addWindow(
 			std::string const & name,
@@ -32,7 +39,10 @@ class WindowManager
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
 
+		/* Getters */
+		// By human-readable name
 		Window * getWindowByName(std::string const &);
+		// By SDL_Window ID
 		Window * getWindowById(Uint32 const id);
 };
 
