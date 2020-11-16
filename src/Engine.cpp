@@ -25,13 +25,14 @@ Engine::~Engine(void)
 
 void Engine::run(float const gameTicksPerMillisecond)
 {
+	// Event cursor
 	SDL_Event ev;
 
+	/* Frames-per-Second management variables */
 	Uint32  frameStartTime(0),
 			frameDuration(0),
 			nominalFrameDuration(1000 / 60);
-
-	Sint32 unusedTime(0);
+	Sint32	unusedTime(0);
 
 	std::shared_ptr<EngineUpdate> update(new EngineUpdate);
 
@@ -39,10 +40,12 @@ void Engine::run(float const gameTicksPerMillisecond)
 			"Nominal frame frameDuration : %d ms",
 			nominalFrameDuration);
 
-	/* One loop equals one frame */
+/* -------------------------------------------------------------------------- */
+/* - MAIN LOOP -------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 	while(!_stack.empty())
 	{
-/* ---- Begin chrono measure */
+/* ---- Begin chrono measure ------------------------------------------------ */
 		frameStartTime = SDL_GetTicks();
 
 		/* Input (controller) */
@@ -58,9 +61,9 @@ void Engine::run(float const gameTicksPerMillisecond)
 		_stack.back()->display();
 
 		frameDuration = SDL_GetTicks() - frameStartTime;
-/* ----- End chrono measure */
+/* ---- End chrono measure -------------------------------------------------- */
 
-/* ----- Begin chrono correction */
+/* ---- Begin chrono correction --------------------------------------------- */
 		unusedTime = nominalFrameDuration - frameDuration;
 		if (unusedTime > 0)
 			SDL_Delay(unusedTime);
@@ -73,12 +76,15 @@ void Engine::run(float const gameTicksPerMillisecond)
 				(Uint32)((float)(-unusedTime) * gameTicksPerMillisecond),
 				update);
 		}
-/* ----- End chrono correction */
+/* ---- End chrono correction ----------------------------------------------- */
 
+/* ---- Begin FPS statistics ------------------------------------------------ */
 		_msPerFrame.push_front(SDL_GetTicks() - frameStartTime);
 		while(_msPerFrame.size() > MS_PER_FRAME_STACK_SIZE)
 			_msPerFrame.pop_back();
+/* ---- End FPS statistics -------------------------------------------------- */
 
+/* ---- Begin context update ------------------------------------------------ */
 		if (update->getPopFlag())
 		{
 			_stack.pop_back();
@@ -89,6 +95,7 @@ void Engine::run(float const gameTicksPerMillisecond)
 			_stack.push_back(update->getNextIGameContext());
 			update->resetNextIGameContext();
 		}
+/* ---- End context update -------------------------------------------------- */
 	}
 }
 
