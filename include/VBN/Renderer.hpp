@@ -11,6 +11,7 @@ class Renderer
 	private:
 		std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> _renderer;
 		std::unique_ptr<BitmapFontManager> _bitmapFontManager;
+		std::shared_ptr<TrueTypeFontManager> _trueTypeFontManager;
 		std::map<std::string, Texture> _textures;
 
 	public:
@@ -44,7 +45,13 @@ class Renderer
 		// May throw
 		void addLatin1TextTexture(
 			std::string const & name,
-			std::shared_ptr<TrueTypeFontManager> ttfManager,
+			std::string const & fontName,
+			std::string const & text,
+			int const size,
+			SDL_Color const & color);
+		// May throw
+		void addUTF8TextTexture(
+			std::string const & name,
 			std::string const & fontName,
 			std::string const & text,
 			int const size,

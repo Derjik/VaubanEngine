@@ -9,10 +9,13 @@ Renderer::Renderer(SDL_Window * window,
 	Uint32 flags,
 	std::shared_ptr<TrueTypeFontManager> ttfManager) :
 	_renderer(nullptr, &SDL_DestroyRenderer),
-	_bitmapFontManager(nullptr)
+	_bitmapFontManager(nullptr),
+	_trueTypeFontManager(ttfManager)
 {
 	if (!window)
 		THROW(Exception, "Received nullptr 'window'");
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
 
 	_renderer = std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)>(
 		SDL_CreateRenderer(window, -1, flags),
@@ -54,7 +57,6 @@ Renderer::~Renderer(void)
 }
 
 void Renderer::addLatin1TextTexture(std::string const & textureName,
-			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			std::string const & fontName,
 			std::string const & text,
 			int const size,
@@ -64,8 +66,6 @@ void Renderer::addLatin1TextTexture(std::string const & textureName,
 		THROW(Exception,
 			"Cannot override existing texture '%s'",
 			textureName);
-	if (!ttfManager)
-		THROW(Exception, "Received nullptr 'ttfManager'");
 	if (fontName.empty())
 		THROW(Exception, "Received empty 'fontName'");
 	if (size <= 0)
@@ -73,8 +73,39 @@ void Renderer::addLatin1TextTexture(std::string const & textureName,
 
 	_textures.emplace(
 		make_pair(textureName,
-			Texture::fromLatin1Text(ttfManager, _renderer.get(),
-				text, fontName, size, color)));
+			Texture::fromLatin1Text(
+				_trueTypeFontManager,
+				_renderer.get(),
+				text,
+				fontName,
+				size,
+				color)));
+}
+
+void Renderer::addUTF8TextTexture(std::string const & textureName,
+			std::string const & fontName,
+			std::string const & text,
+			int const size,
+			SDL_Color const & color)
+{
+	if(_textures.find(textureName) != _textures.end())
+		THROW(Exception,
+			"Cannot override existing texture '%s'",
+			textureName);
+	if (fontName.empty())
+		THROW(Exception, "Received empty 'fontName'");
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
+
+	_textures.emplace(
+		make_pair(textureName,
+			Texture::fromUTF8Text(
+				_trueTypeFontManager,
+				_renderer.get(),
+				text,
+				fontName,
+				size,
+				color)));
 }
 
 void Renderer::addImageTexture(std::string const & textureName,
