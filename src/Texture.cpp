@@ -126,7 +126,7 @@ SDL_Color Texture::getColorAlphaMod(void) const
 	return rgba;
 }
 
-Texture Texture::fromText(
+Texture Texture::fromLatin1Text(
 	std::shared_ptr<TrueTypeFontManager> ttfManager,
 	SDL_Renderer * renderer,
 	std::string const & text,
@@ -143,7 +143,40 @@ Texture Texture::fromText(
 	if (textSize <= 0)
 		THROW(Exception, "Received textSize <= 0");
 
-	Surface textSurface(Surface::fromLatin1Text(ttfManager, text, textFontName, textSize, textColor));
+	Surface textSurface(
+		Surface::fromLatin1Text(
+			ttfManager,
+			text,
+			textFontName,
+			textSize,
+			textColor));
+	return Texture::fromSurface(renderer, textSurface);
+}
+
+Texture Texture::fromUTF8Text(
+	std::shared_ptr<TrueTypeFontManager> ttfManager,
+	SDL_Renderer * renderer,
+	std::string const & text,
+	std::string const & textFontName,
+	int const textSize,
+	SDL_Color const & textColor)
+{
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
+	if (renderer == nullptr)
+		THROW(Exception, "Received nullptr 'renderer'");
+	if (textFontName.empty())
+		THROW(Exception, "Received empty 'textFontName'");
+	if (textSize <= 0)
+		THROW(Exception, "Received textSize <= 0");
+
+	Surface textSurface(
+		Surface::fromUTF8Text(
+			ttfManager,
+			text,
+			textFontName,
+			textSize,
+			textColor));
 	return Texture::fromSurface(renderer, textSurface);
 }
 

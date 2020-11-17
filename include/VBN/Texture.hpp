@@ -47,7 +47,15 @@ class Texture
 
 		/* Factories */
 		// May throw
-		static Texture fromText(
+		static Texture fromLatin1Text(
+			std::shared_ptr<TrueTypeFontManager> ttfManager,
+			SDL_Renderer * renderer,
+			std::string const & text,
+			std::string const & textFontName,
+			int const textSize,
+			SDL_Color const & textColor);
+		// May throw
+		static Texture fromUTF8Text(
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			SDL_Renderer * renderer,
 			std::string const & text,

@@ -42,7 +42,7 @@ class Renderer
 
 		/* Texture management */
 		// May throw
-		void addTextTexture(
+		void addLatin1TextTexture(
 			std::string const & name,
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			std::string const & fontName,

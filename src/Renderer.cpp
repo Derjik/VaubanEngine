@@ -53,7 +53,7 @@ Renderer::~Renderer(void)
 		_renderer.get());
 }
 
-void Renderer::addTextTexture(std::string const & textureName,
+void Renderer::addLatin1TextTexture(std::string const & textureName,
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			std::string const & fontName,
 			std::string const & text,
@@ -73,7 +73,7 @@ void Renderer::addTextTexture(std::string const & textureName,
 
 	_textures.emplace(
 		make_pair(textureName,
-			Texture::fromText(ttfManager, _renderer.get(),
+			Texture::fromLatin1Text(ttfManager, _renderer.get(),
 				text, fontName, size, color)));
 }
 
