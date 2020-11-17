@@ -13,22 +13,27 @@ TrueTypeFont::TrueTypeFont(
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
 
-	DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"TrueTypeFont: file %s, size %d, face %d,",
 		filePath.c_str(),
 		size,
 		face);
 
+	// Instantiate TTF_Font and enclose it in unique_ptr
 	_font = std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)>(
 		TTF_OpenFontIndex(filePath.c_str(), size, face),
 		TTF_CloseFont);
 
+	// Check for TTF_OpenFontIndex errors
 	if (_font == nullptr)
 		THROW(Exception,
 			"Cannot open font : TTF error '%s'",
 			TTF_GetError());
 
-	DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+	// Disable kerning (=monospace now)
+	TTF_SetFontKerning(_font.get(), 0);
+
+	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"TrueTypeFont: name %s ascent %d, "
 		"descent %d, "
 		"lineskip %d, "
@@ -40,8 +45,6 @@ TrueTypeFont::TrueTypeFont(
 		getLineSkip(),
 		getFaces(),
 		getIsFixedWidth());
-
-	TTF_SetFontKerning(_font.get(), 0);
 
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"Built font %s size %d @ %p",
@@ -162,7 +165,7 @@ std::pair<int, int> TrueTypeFont::getTextSize(std::string const text) const
 	return result;
 }
 
-SDL_Surface * TrueTypeFont::renderSolid(
+SDL_Surface * TrueTypeFont::renderSolidLatin1(
 	std::string const & text,
 	SDL_Color const & color)
 {
@@ -171,7 +174,22 @@ SDL_Surface * TrueTypeFont::renderSolid(
 
 	if(renderedText == nullptr)
 		THROW(Exception,
-			"Cannot render text : TTF error '%s'",
+			"Cannot render Latin1 text : TTF error '%s'",
+			TTF_GetError());
+
+	return renderedText;
+}
+
+SDL_Surface * TrueTypeFont::renderSolidUTF8(
+	std::string const & text,
+	SDL_Color const & color)
+{
+	SDL_Surface * renderedText(TTF_RenderUTF8_Solid(
+		_font.get(), text.c_str(), color));
+
+	if(renderedText == nullptr)
+		THROW(Exception,
+			"Cannot render UTF-8 text : TTF error '%s'",
 			TTF_GetError());
 
 	return renderedText;

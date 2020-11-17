@@ -92,7 +92,7 @@ BitmapFont::BitmapFont(
 		} while(currentPrintable < 16 && currentCharacter < UCHAR_MAX);
 
 		/* Generate a surface that contains the current 16 character line */
-		lineSurfaces.push_back(Surface::fromText(
+		lineSurfaces.push_back(Surface::fromLatin1Text(
 								ttfManager, lineString, name, size,
 								{255,255,255,255}));
 

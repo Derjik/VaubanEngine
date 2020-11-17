@@ -22,7 +22,14 @@ class Surface
 		SDL_Surface * getSurface(void);
 
 		// May throw
-		static Surface fromText(
+		static Surface fromLatin1Text(
+			std::shared_ptr<TrueTypeFontManager> ttfManager,
+			std::string const & text,
+			std::string const & fontName,
+			int const size,
+			SDL_Color const & color);
+		// May throw
+		static Surface fromUTF8Text(
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			std::string const & text,
 			std::string const & fontName,

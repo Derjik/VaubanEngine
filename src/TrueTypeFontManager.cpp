@@ -25,28 +25,25 @@ TrueTypeFont * TrueTypeFontManager::getFont(
 	auto const fontIterator = _fonts.find(make_pair(fontName, size));
 	if(fontIterator == _fonts.end())
 	{
-		DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+		VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 			"Font '%s' size '%d' not loaded, loading",
 			fontName.c_str(), size);
 
-		try
-		{
-			TrueTypeFont ttFont(_assetsDirectory + fontName + ".ttf", size);
+		// Instantiate TrueTypeFont using input file & face 0
+		// May throw
+		TrueTypeFont ttFont(_assetsDirectory + fontName + ".ttf", size);
 
-			auto insertedPair(_fonts.emplace(
-				make_pair(fontName, size),
-				std::move(ttFont)));
+		// Store newly instantiated font in cache
+		auto insertedPair(_fonts.emplace(
+			make_pair(fontName, size),
+			std::move(ttFont)));
 
-			font = (&insertedPair.first->second);
-		}
-		catch (Exception const & exc)
-		{
-			EXCEPT(exc);
-		}
+		// Return new font
+		font = (&insertedPair.first->second);
 	}
 	else
 	{
-		DEBUG(SDL_LOG_CATEGORY_APPLICATION,
+		VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 			"Font '%s' size '%d' already loaded, reusing",
 			fontName.c_str(), size);
 

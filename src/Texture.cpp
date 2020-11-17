@@ -143,7 +143,7 @@ Texture Texture::fromText(
 	if (textSize <= 0)
 		THROW(Exception, "Received textSize <= 0");
 
-	Surface textSurface(Surface::fromText(ttfManager, text, textFontName, textSize, textColor));
+	Surface textSurface(Surface::fromLatin1Text(ttfManager, text, textFontName, textSize, textColor));
 	return Texture::fromSurface(renderer, textSurface);
 }
 

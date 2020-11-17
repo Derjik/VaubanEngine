@@ -37,7 +37,7 @@ SDL_Surface * Surface::getSurface(void)
 	return _rawSurface.get();
 }
 
-Surface Surface::fromText(
+Surface Surface::fromLatin1Text(
 			std::shared_ptr<TrueTypeFontManager> ttfManager,
 			std::string const & text,
 			std::string const & fontName,
@@ -58,7 +58,31 @@ Surface Surface::fromText(
 			fontName,
 			size);
 
-	return Surface(font->renderSolid(text, color));
+	return Surface(font->renderSolidLatin1(text, color));
+}
+
+Surface Surface::fromUTF8Text(
+			std::shared_ptr<TrueTypeFontManager> ttfManager,
+			std::string const & text,
+			std::string const & fontName,
+			int const size,
+			SDL_Color const & color)
+{
+	if (!ttfManager)
+		THROW(Exception, "Received nullptr 'ttfManager'");
+	if (fontName.empty())
+		THROW(Exception, "Received empty 'fontName'");
+	if (size <= 0)
+		THROW(Exception, "Received 'size' <= 0");
+
+	TrueTypeFont * font(ttfManager->getFont(fontName, size));
+	if (!font)
+		THROW(Exception,
+			"Cannot retrieve font '%s' size '%d'",
+			fontName,
+			size);
+
+	return Surface(font->renderSolidUTF8(text, color));
 }
 
 Surface Surface::fromImage(std::string const & path)
