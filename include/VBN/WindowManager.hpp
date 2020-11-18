@@ -9,26 +9,30 @@ class TrueTypeFontManager;
 
 /*!
  * Stores & retrieves Window objects 
+ *
+ * The WindowManager is the main component handling Window creation and storage
+ * application-wide
  */
 class WindowManager
 {
 	private:
-		/* Actual Window map using SDL-provided IDs for indexing */
+		//! Actual Window map using SDL-provided IDs for indexing
 		std::map<Uint32, Window> _idToWindow;
-		/* User-friendly string-indexed map to name each Window */
+		//! User-friendly string-indexed map to name each Window
 		std::map<std::string, Uint32> _stringToId;
 
 	public:
-		/* Constructors & destructor */
+		//! Build a WindowManager
 		WindowManager(void);
+		//! Delete a WindowManager
+		~WindowManager(void);
+
 		WindowManager(WindowManager const &) = delete;
 		WindowManager(WindowManager &&) = delete;
 		WindowManager & operator = (WindowManager const &) = delete;
 		WindowManager & operator = (WindowManager &&) = delete;
-		~WindowManager(void);
 
-		/* Create a Window and add store it into the Manager */
-		// May throw
+		//! Instantiate a new Window and store it into the internal map
 		void addWindow(
 			std::string const & name,
 			std::string const & title,
@@ -39,10 +43,9 @@ class WindowManager
 			Uint32 rendererFlags,
 			std::shared_ptr<TrueTypeFontManager> ttfManager);
 
-		/* Getters */
-		// By human-readable name
+		//! Get Window by human-readable name
 		Window * getWindowByName(std::string const &);
-		// By SDL_Window ID
+		//! Get Window by SDL_Window ID
 		Window * getWindowById(Uint32 const id);
 };
 
