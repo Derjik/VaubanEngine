@@ -40,7 +40,7 @@ class Window
 			/*!
 			 * Resolution depends on window size
 			 */
-			DYNAMIC_RATIO 
+			DYNAMIC_RATIO
 		};
 
 	private:
@@ -59,10 +59,7 @@ class Window
 		//! (Re-)Apply RatioType, e.g. after toggling Full-Screen
 		void applyRatioTypeSettings(void);
 
-		/*!
-		 * Update internal canvas dimensions (if using FIXED_RATIO_FRAME 
-		 * mode)
-		 */
+		//! Update canvas dimensions (if using FIXED_RATIO_FRAME mode)
 		void updateCanvasFrame(SDL_Rect const & outerSurface);
 
 	public:

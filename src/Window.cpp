@@ -3,6 +3,10 @@
 #include <VBN/Exceptions.hpp>
 
 /*!
+ * Builds a new Window instance and its associated Renderer using specified
+ * parameters. This constructor can throw an Exception on bad input parameters
+ * or SDL call failure.
+ *
  * @param	title			UTF-8-encoded title
  * @param	xPosition		Initial X coordinate for the top-left corner
  * @param	yPosition		Initial Y coordinate for the top-left corner
@@ -71,6 +75,8 @@ Window::Window(std::string const & title,
 }
 
 /*!
+ * Standard Move-Constructor for the Window class
+ *
  * @param	other	Other Window instance to be moved
  */
 Window::Window(Window && other) :
@@ -108,9 +114,6 @@ void Window::applyRatioTypeSettings(void)
 	{
 		switch (_ratioType)
 		{
-			case FIXED_RATIO_STRETCH:
-				_renderer->setLogicalSize(_canvasWidth, _canvasHeight);
-			break;
 			case FIXED_RATIO_FRAME:
 				_renderer->setLogicalSize(0, 0);
 
@@ -122,6 +125,9 @@ void Window::applyRatioTypeSettings(void)
 
 				updateCanvasFrame(windowSurface);
 			break;
+			case FIXED_RATIO_STRETCH:
+				_renderer->setLogicalSize(_canvasWidth, _canvasHeight);
+			break;
 			case DYNAMIC_RATIO:
 				_renderer->setLogicalSize(0, 0);
 			break;
@@ -132,17 +138,18 @@ void Window::applyRatioTypeSettings(void)
 	{
 		switch (_ratioType)
 		{
-			case FIXED_RATIO_STRETCH:
-				_renderer->setLogicalSize(_canvasWidth, _canvasHeight);
-			break;
 			case FIXED_RATIO_FRAME:
 				_renderer->setLogicalSize(0, 0);
 
 				SDL_Rect desktopSurface;
-				SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(_window.get()),
+				SDL_GetDisplayBounds(
+					SDL_GetWindowDisplayIndex(_window.get()),
 					&desktopSurface);
 
 				updateCanvasFrame(desktopSurface);
+			break;
+			case FIXED_RATIO_STRETCH:
+				_renderer->setLogicalSize(_canvasWidth, _canvasHeight);
 			break;
 			case DYNAMIC_RATIO:
 				_renderer->setLogicalSize(0, 0);
@@ -151,6 +158,9 @@ void Window::applyRatioTypeSettings(void)
 	}
 }
 
+/*!
+ * @param outerSurface
+ */
 void Window::updateCanvasFrame(SDL_Rect const & outerSurface)
 {
 	if (_ratioType == FIXED_RATIO_FRAME)
