@@ -37,10 +37,6 @@ class Window
 		int _canvasWidth;
 		int _canvasHeight;
 
-		std::unique_ptr<BitmapFontManager> _bitmapFontManager;
-
-		std::map<std::string, Texture> _textures;
-
 		void applyRatioTypeSettings(void);
 		void updateCanvasFrame(SDL_Rect const & outerSurface);
 

@@ -13,8 +13,7 @@ Window::Window(std::string const & title,
 	_ratioType(ratioType),
 	_canvasWidth(windowWidth),
 	_canvasHeight(windowHeight),
-	_renderer(nullptr),
-	_bitmapFontManager(nullptr)
+	_renderer(nullptr)
 {
 	if (title.empty())
 		THROW(Exception, "Received empty 'title'");
@@ -58,9 +57,7 @@ Window::Window(Window && other) :
 	_renderer(std::move(other._renderer)),
 	_ratioType(std::move(other._ratioType)),
 	_canvasWidth(std::move(other._canvasWidth)),
-	_canvasHeight(std::move(other._canvasHeight)),
-	_bitmapFontManager(std::move(other._bitmapFontManager)),
-	_textures(std::move(other._textures))
+	_canvasHeight(std::move(other._canvasHeight))
 {
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"Move Window %p (SDL_Window %p) into new Window %p",
