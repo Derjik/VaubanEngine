@@ -1,6 +1,4 @@
 #include <VBN/WindowManager.hpp>
-#include <VBN/Window.hpp>
-#include <VBN/Exceptions.hpp>
 #include <VBN/Logging.hpp>
 
 WindowManager::WindowManager(void)
