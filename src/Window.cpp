@@ -2,6 +2,18 @@
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
+/*!
+ * @param	title			UTF-8-encoded title
+ * @param	xPosition		Initial X coordinate for the top-left corner
+ * @param	yPosition		Initial Y coordinate for the top-left corner
+ * @param	windowWidth		Window width
+ * @param	windowHeight	Window height
+ * @param	ratioType		See Window::RatioType
+ * @param	windowFlags		Configuration flags passed to SDL_CreateWindow()
+ * @param	rendererFlags	Configuration flags passed to Renderer()
+ * @param	ttfManager		TrueTypeFontManager to use for text rendering
+ * @throws	Exception		Invalid input parameters or SDL call error
+ */
 Window::Window(std::string const & title,
 	int xPosition, int yPosition,
 	int windowWidth, int windowHeight,
@@ -15,6 +27,7 @@ Window::Window(std::string const & title,
 	_canvasHeight(windowHeight),
 	_renderer(nullptr)
 {
+	// Check input parameters
 	if (title.empty())
 		THROW(Exception, "Received empty 'title'");
 	if (xPosition <= 0)
@@ -28,30 +41,38 @@ Window::Window(std::string const & title,
 	if (!ttfManager)
 		THROW(Exception, "Received nullptr 'ttfManager'");
 
+	// Try building the SDL_Window
 	_window = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>(
 		SDL_CreateWindow(title.c_str(),
 						xPosition, yPosition,
 						windowWidth, windowHeight,
 						windowFlags),
 		SDL_DestroyWindow);
+	// SDL-error case
 	if(_window == nullptr)
 		THROW(Exception,
 			"Cannot instantiate SDL_Window : SDL error '%s'",
 			SDL_GetError());
 
+	// Try building the associated Renderer (may throw Exception)
 	_renderer = std::unique_ptr<Renderer>(new Renderer(
 			_window.get(),
 			SDL_RENDERER_ACCELERATED,
 			ttfManager));
 
+	// Initial applying of the RatioType settings
 	applyRatioTypeSettings();
 
+	// Log
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"Build Window %p (SDL_Window %p)",
 		this,
 		_window.get());
 }
 
+/*!
+ * @param	other	Other Window instance to be moved
+ */
 Window::Window(Window && other) :
 	_window(std::move(other._window)),
 	_renderer(std::move(other._renderer)),
@@ -74,6 +95,10 @@ Window::~Window(void)
 		_window.get());
 }
 
+/*!
+ * Apply or re-apply the currently specified Window::RatioType, by taking the
+ * full-screen flag into account
+ */
 void Window::applyRatioTypeSettings(void)
 {
 	Uint32 windowFlags = SDL_GetWindowFlags(_window.get());
