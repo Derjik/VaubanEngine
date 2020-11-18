@@ -3,11 +3,7 @@
 
 #include <memory>
 #include <string>
-#include <map>
 #include <SDL2/SDL_video.h>
-#include <SDL2/SDL_render.h>
-#include <VBN/Texture.hpp>
-#include <VBN/BitmapFontManager.hpp>
 #include <VBN/Renderer.hpp>
 
 class TrueTypeFontManager;
