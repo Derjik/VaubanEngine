@@ -6,28 +6,34 @@
 #include <string>
 #include <VBN/TrueTypeFont.hpp>
 
+/*!
+ * Stores & retrieves TrueTypeFont objects
+ *
+ * The TrueTypeFontManager builds, stores & retrieves True Type fonts
+ */
 class TrueTypeFontManager
 {
 	private:
-		// Full or relative path to Audio Assets Directory
+		//! Full or relative path to Audio Assets Directory
 		std::string _assetsDirectory;
-		// Set containing all available fonts' names
+		//! Set containing all available fonts' names
 		std::set<std::string> _fontNames;
-		// Cache map containing all previously instantiated {font,size} pairs
+		//! Cache map containing all previously instantiated {font,size} pairs
 		std::map<std::pair<std::string, int>, TrueTypeFont> _fonts;
 
 	public:
-		/* Constructors & destructor */
-		TrueTypeFontManager(std::string const & assetsDirectory,
+		//! Build a TrueTypeFontManager
+		TrueTypeFontManager(
+			std::string const & assetsDirectory,
 			std::set<std::string> const & fontNames);
+		//! Delete a TrueTypeFontManager
+		~TrueTypeFontManager(void);
 		TrueTypeFontManager(TrueTypeFontManager const &) = delete;
 		TrueTypeFontManager(TrueTypeFontManager &&) = delete;
 		TrueTypeFontManager & operator = (TrueTypeFontManager const &) = delete;
 		TrueTypeFontManager & operator = (TrueTypeFontManager &&) = delete;
 
-		/* Getters */
-		// May throw
-		// Get a font using the parameter-passed size
+		//! Get a (cached or newly created) TrueTypeFont
 		TrueTypeFont * getFont(std::string const & name, int const size);
 };
 
