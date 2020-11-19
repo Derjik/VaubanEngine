@@ -16,7 +16,7 @@ class TrueTypeFontManager
 	private:
 		//! Full or relative path to Audio Assets Directory
 		std::string _assetsDirectory;
-		//! Set containing all available fonts' names
+		//! Set containing all available fonts names
 		std::set<std::string> _fontNames;
 		//! Cache map containing all previously instantiated {font,size} pairs
 		std::map<std::pair<std::string, int>, TrueTypeFont> _fonts;
