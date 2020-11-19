@@ -2,9 +2,12 @@
 #define TEXTURE_HPP_INCLUDED
 
 #include <memory>
+#include <map>
 #include <string>
 #include <SDL2/SDL_render.h>
-#include <VBN/Surface.hpp>
+
+class TrueTypeFontManager;
+class Surface;
 
 class Texture
 {

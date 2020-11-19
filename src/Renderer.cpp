@@ -1,4 +1,5 @@
 #include <VBN/Renderer.hpp>
+#include <VBN/Surface.hpp>
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 #include <VBN/Introspection.hpp>

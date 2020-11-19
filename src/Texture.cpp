@@ -1,3 +1,4 @@
+#include <SDL2/SDL_render.h>
 #include <VBN/Surface.hpp>
 #include <VBN/Texture.hpp>
 #include <VBN/Logging.hpp>
