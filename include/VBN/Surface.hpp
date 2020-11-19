@@ -4,7 +4,8 @@
 #include <memory>
 #include <string>
 #include <SDL2/SDL_surface.h>
-#include <VBN/TrueTypeFontManager.hpp>
+
+class TrueTypeFontManager;
 
 class Surface
 {

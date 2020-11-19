@@ -1,8 +1,8 @@
-#include <SDL2/SDL_image.h>
-#include <VBN/TrueTypeFontManager.hpp>
 #include <VBN/Surface.hpp>
+#include <VBN/TrueTypeFontManager.hpp>
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
+#include <SDL2/SDL_image.h>
 
 Surface::Surface(SDL_Surface * rawSurface) : _rawSurface(rawSurface, &SDL_FreeSurface)
 {
