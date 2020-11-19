@@ -2,22 +2,25 @@
 #include <VBN/Logging.hpp>
 #include <VBN/Exceptions.hpp>
 
+/*!
+ * @param	filePath	Full path to the .ttf file (with extension)
+ * @param	size		Font size
+ * @param	face		Font face identifier (defaults to 0)
+ * @throws	Exception	Invalid input parameters or SDL TTF call error
+ *
+ * @todo	Why disable kerning ?
+ */
 TrueTypeFont::TrueTypeFont(
 	std::string const & filePath,
 	unsigned const size,
 	unsigned const face) :
 	_font(nullptr, &TTF_CloseFont)
 {
+	// Check input parameters
 	if (filePath.empty())
 		THROW(Exception, "Received empty 'filePath'");
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
-
-	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-		"TrueTypeFont: file %s, size %d, face %d,",
-		filePath.c_str(),
-		size,
-		face);
 
 	// Instantiate TTF_Font and enclose it in unique_ptr
 	_font = std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)>(
@@ -34,23 +37,11 @@ TrueTypeFont::TrueTypeFont(
 	TTF_SetFontKerning(_font.get(), 0);
 
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-		"TrueTypeFont: name %s ascent %d, "
-		"descent %d, "
-		"lineskip %d, "
-		"faces %d, "
-		"fixed width %d",
-		getFaceFamilyName().c_str(),
-		getAscent(),
-		getDescent(),
-		getLineSkip(),
-		getFaces(),
-		getIsFixedWidth());
-
-	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-		"Built font %s size %d @ %p",
+		"Build TrueTypeFont %p (TTF_Font %p, name '%s' size %d)",
+		this,
+		_font.get(),
 		filePath.c_str(),
-		size,
-		this);
+		size);
 }
 
 TrueTypeFont::TrueTypeFont(TrueTypeFont && other) : _font(std::move(other._font))
@@ -65,7 +56,7 @@ TrueTypeFont::TrueTypeFont(TrueTypeFont && other) : _font(std::move(other._font)
 TrueTypeFont::~TrueTypeFont()
 {
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
-		"Delete font @ %p (TTF_Font %p)",
+		"Delete TrueTypeFont %p (TTF_Font %p)",
 		this,
 		_font.get());
 }
@@ -165,32 +156,60 @@ std::pair<int, int> TrueTypeFont::getTextSize(std::string const text) const
 	return result;
 }
 
+/*!
+ * @param	text		An std::string containing a Latin1-encoded sequence to print
+ *						onto a new SDL_Surface
+ * @param	color		SDL_Color to use for printing
+ * @returns				Raw pointer to newly created SDL_Surface containing printed
+ *						text
+ * @throws	Exception	TTF call error
+ */
 SDL_Surface * TrueTypeFont::renderSolidLatin1(
 	std::string const & text,
 	SDL_Color const & color)
 {
-	SDL_Surface * renderedText(TTF_RenderText_Solid(
-		_font.get(), text.c_str(), color));
+	// Try rendering
+	SDL_Surface * renderedText(
+		TTF_RenderText_Solid(
+			_font.get(),
+			text.c_str(),
+			color));
 
+	// Check for rendering errors
 	if(renderedText == nullptr)
 		THROW(Exception,
 			"Cannot render Latin1 text : TTF error '%s'",
 			TTF_GetError());
 
+	// Return rendered SDL_Surface
 	return renderedText;
 }
 
+/*!
+ * @param	text		An std::string containing an UTF8-encoded sequence to
+ *						print onto a new SDL_Surface
+ * @param	color		SDL_Color to use for printing
+ * @returns				Raw pointer to newly created SDL_Surface containing printed
+ *						text
+ * @throws	Exception	TTF call error
+ */
 SDL_Surface * TrueTypeFont::renderSolidUTF8(
 	std::string const & text,
 	SDL_Color const & color)
 {
-	SDL_Surface * renderedText(TTF_RenderUTF8_Solid(
-		_font.get(), text.c_str(), color));
+	// Try rendering
+	SDL_Surface * renderedText(
+		TTF_RenderUTF8_Solid(
+			_font.get(),
+			text.c_str(),
+			color));
 
+	// Check for rendering errors
 	if(renderedText == nullptr)
 		THROW(Exception,
 			"Cannot render UTF-8 text : TTF error '%s'",
 			TTF_GetError());
 
+	// Return rendered SDL_Surface
 	return renderedText;
 }

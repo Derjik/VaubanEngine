@@ -7,14 +7,28 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_surface.h>
 
+/*!
+ * TTF_Font wrapper class
+ *
+ * Each instance of this class encapsulates a TTF_Font object in a dedicated
+ * std::unique_ptr, configured to free the underlying memory chunk using
+ * TTF_CloseFont().
+ *
+ * @todo	Add documentation for TTF getters/setters
+ * @todo	Implement Blended, Shaded etc. renders
+ */
 class TrueTypeFont
 {
 	private:
-		/* Internal SDL TTF_Font */
+		//! Internal SDL TTF_Font
 		std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> _font;
 
 	public:
-		/* TTF metrics structure for a given glyph */
+		/*!
+		 * Aggregates all exposed metrics for a single glyph. (refer to
+		 * https://www.libsdl.org/projects/SDL_ttf/docs/metrics.png for a
+		 * detailed description of each field)
+		 */
 		struct GlyphMetrics
 		{
 			int xMin;
@@ -26,16 +40,19 @@ class TrueTypeFont
 			int advance;
 		};
 
-		/* Constructors & destructor */
-		// May throw
-		TrueTypeFont(std::string const & filePath,
+		//! Build a TrueTypeFont instance
+		TrueTypeFont(
+			std::string const & filePath,
 			unsigned const size,
 			unsigned const face = 0);
+		//! Move a TrueTypeFont instance
 		TrueTypeFont(TrueTypeFont &&other);
+		//! Delete a TrueTypeFont instance
+		~TrueTypeFont();
+
 		TrueTypeFont(TrueTypeFont const &other) = delete;
 		TrueTypeFont & operator = (TrueTypeFont const &) = delete;
 		TrueTypeFont & operator = (TrueTypeFont &&) = delete;
-		~TrueTypeFont();
 
 		/* Getters */
 		int getStyle(void) const;
@@ -60,11 +77,11 @@ class TrueTypeFont
 		std::pair<int, int> getTextSize(std::string const text) const;
 
 		/* Rendering */
-		// May throw
+		//! Render Latin1 text into an SDL_Surface
 		SDL_Surface * renderSolidLatin1(
 			std::string const & text,
 			SDL_Color const & color);
-		// May throw
+		//! Render UTF-8 text into an SDL_Surface
 		SDL_Surface * renderSolidUTF8(
 			std::string const & text,
 			SDL_Color const & color);
