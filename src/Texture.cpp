@@ -301,7 +301,8 @@ Texture Texture::fromScratch(
 }
 
 /*!
- * @param	name		Human-readable name to associate with the clipping rectangle
+ * @param	name		Human-readable name to associate with the clipping
+ *						rectangle
  * @param	clip		SDL_Rect representing the clipping area
  * @throws	Exception	Invalid input parameters
  */
