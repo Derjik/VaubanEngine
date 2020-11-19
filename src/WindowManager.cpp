@@ -20,11 +20,13 @@ WindowManager::~WindowManager(void)
  * and stores the resulting Window in the internal WindowManager::_idToWindow
  * map if the Window construction was successful.
  *
- * @param	title			UTF-8-encoded title
- * @param	xPosition		Initial X coordinate for the top-left corner
- * @param	yPosition		Initial Y coordinate for the top-left corner
- * @param	windowWidth		Window width
- * @param	windowHeight	Window height
+ * @param	name			Human-readable handle to associate to the Window in
+ *							the internal storage map
+ * @param	name			UTF-8-encoded title
+ * @param	x				Initial X coordinate for the top-left corner
+ * @param	y				Initial Y coordinate for the top-left corner
+ * @param	w				Window width
+ * @param	h				Window height
  * @param	ratioType		See Window::RatioType
  * @param	windowFlags		Configuration flags passed to SDL_CreateWindow()
  * @param	rendererFlags	Configuration flags passed to Renderer()
