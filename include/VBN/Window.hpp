@@ -12,8 +12,8 @@ class TrueTypeFontManager;
  * SDL_Window wrapper class
  *
  * Each instance of this class encapsulates an SDL_Window object in a dedicated
- * std::unique_ptr, configured to free the underling memory using
- * SDL_DestroyWindow()
+ * std::unique_ptr, configured to free the underlying memory chunk using
+ * SDL_DestroyWindow().
  */
 class Window
 {
