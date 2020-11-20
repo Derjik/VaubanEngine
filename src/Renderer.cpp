@@ -4,9 +4,8 @@
 #include <VBN/Exceptions.hpp>
 #include <VBN/Introspection.hpp>
 
-#define DEFAULT_TEXTURE "default"
-
-Renderer::Renderer(SDL_Window * window,
+Renderer::Renderer(
+	SDL_Window * window,
 	Uint32 flags,
 	std::shared_ptr<TrueTypeFontManager> ttfManager) :
 	_renderer(nullptr, &SDL_DestroyRenderer),
@@ -25,14 +24,6 @@ Renderer::Renderer(SDL_Window * window,
 		THROW(Exception,
 			"Cannot instantiate SDL_Renderer : SDL error '%s'",
 			SDL_GetError());
-
-	_textures.emplace(std::make_pair(
-		std::string(DEFAULT_TEXTURE),
-		Texture::fromScratch(
-			_renderer.get(),
-			SDL_PIXELFORMAT_RGBA32,
-			SDL_TEXTUREACCESS_STATIC,
-			256, 256)));
 
 	_bitmapFontManager = std::unique_ptr<BitmapFontManager>(
 		new BitmapFontManager(ttfManager, _renderer.get()));
@@ -57,11 +48,12 @@ Renderer::~Renderer(void)
 		_renderer.get());
 }
 
-void Renderer::addLatin1TextTexture(std::string const & textureName,
-			std::string const & fontName,
-			std::string const & text,
-			int const size,
-			SDL_Color const & color)
+void Renderer::addLatin1TextTexture(
+	std::string const & textureName,
+	std::string const & fontName,
+	std::string const & text,
+	int const size,
+	SDL_Color const & color)
 {
 	if(_textures.find(textureName) != _textures.end())
 		THROW(Exception,
@@ -83,11 +75,12 @@ void Renderer::addLatin1TextTexture(std::string const & textureName,
 				color)));
 }
 
-void Renderer::addUTF8TextTexture(std::string const & textureName,
-			std::string const & fontName,
-			std::string const & text,
-			int const size,
-			SDL_Color const & color)
+void Renderer::addUTF8TextTexture(
+	std::string const & textureName,
+		std::string const & fontName,
+		std::string const & text,
+		int const size,
+		SDL_Color const & color)
 {
 	if(_textures.find(textureName) != _textures.end())
 		THROW(Exception,
@@ -109,7 +102,8 @@ void Renderer::addUTF8TextTexture(std::string const & textureName,
 				color)));
 }
 
-void Renderer::addImageTexture(std::string const & textureName,
+void Renderer::addImageTexture(
+	std::string const & textureName,
 	std::string const & path)
 {
 	if (_textures.find(textureName) != _textures.end())
