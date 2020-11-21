@@ -4,6 +4,17 @@
 #include <VBN/Exceptions.hpp>
 #include <VBN/Introspection.hpp>
 
+/*!
+ * @param	window		Raw pointer to the SDL_Window for which the Renderer is
+ *						instantiated
+ * @param	flags		SDL_CreateRenderer() flags
+ * @param	ttfManager	Shared reference to a TrueTypeFontManager to associate
+ *						to the Renderer
+ * @throws	Exception	Invalid input parameters or SDL call error
+ *
+ * @todo	Check default blending mode pertinence
+ * @todo	Try Introspection cleanup
+ */
 Renderer::Renderer(
 	SDL_Window * window,
 	Uint32 flags,
@@ -12,28 +23,37 @@ Renderer::Renderer(
 	_bitmapFontManager(nullptr),
 	_trueTypeFontManager(ttfManager)
 {
+	// Check input parameters
 	if (!window)
 		THROW(Exception, "Received nullptr 'window'");
 	if (!ttfManager)
 		THROW(Exception, "Received nullptr 'ttfManager'");
 
+	// Attempt renderer instantiation
 	_renderer = std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)>(
 		SDL_CreateRenderer(window, -1, flags),
 		SDL_DestroyRenderer);
+	// Check for errors
 	if(_renderer == nullptr)
 		THROW(Exception,
 			"Cannot instantiate SDL_Renderer : SDL error '%s'",
 			SDL_GetError());
 
+	// Try instantiating a BitmapFontManager for the renderer
 	_bitmapFontManager = std::unique_ptr<BitmapFontManager>(
 		new BitmapFontManager(ttfManager, _renderer.get()));
+	// Check for errors
 	if(_bitmapFontManager == nullptr)
 		THROW(Exception, "Cannot instantiate BitmapFontManager");
 
+	// Set default blending mode (blend)
 	setBlendMode(SDL_BLENDMODE_BLEND);
 
+	// Give information on the newly instantiated renderer to the Hardware
+	// Introspection module
 	Introspection::insertRendererInfo(_renderer.get());
 
+	// Log
 	VERBOSE(SDL_LOG_CATEGORY_APPLICATION,
 		"Build Renderer %p (SDL_Renderer %p)",
 		this,
@@ -48,6 +68,16 @@ Renderer::~Renderer(void)
 		_renderer.get());
 }
 
+/*!
+ * @param	textureName		Name to give to the newly created Texture in storage
+ * @param	fontName		Font to use
+ * @param	text			Latin1-encoded text to print on the texture
+ * @param	size			Text size
+ * @param	color			Text color
+ * @throws	Exception		Invalid input parameters or SDL/TTF call error
+ *
+ * @todo	Unify API with other text-related methods
+ */
 void Renderer::addLatin1TextTexture(
 	std::string const & textureName,
 	std::string const & fontName,
@@ -55,6 +85,7 @@ void Renderer::addLatin1TextTexture(
 	int const size,
 	SDL_Color const & color)
 {
+	// Check input parameters
 	if(_textures.find(textureName) != _textures.end())
 		THROW(Exception,
 			"Cannot override existing texture '%s'",
@@ -64,6 +95,7 @@ void Renderer::addLatin1TextTexture(
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
 
+	// Attempt text rendering & storage into the Textures map
 	_textures.emplace(
 		make_pair(textureName,
 			Texture::fromLatin1Text(
@@ -75,6 +107,16 @@ void Renderer::addLatin1TextTexture(
 				color)));
 }
 
+/*!
+ * @param	textureName		Name to give to the newly created Texture in storage
+ * @param	fontName		Font to use
+ * @param	text			UTF-8-encoded text to print on the texture
+ * @param	size			Text size
+ * @param	color			Text color
+ * @throws	Exception		Invalid input parameters or SDL/TTF call error
+ *
+ * @todo	Unify API with other text-related methods
+ */
 void Renderer::addUTF8TextTexture(
 	std::string const & textureName,
 		std::string const & fontName,
@@ -82,6 +124,7 @@ void Renderer::addUTF8TextTexture(
 		int const size,
 		SDL_Color const & color)
 {
+	// Check input parameters
 	if(_textures.find(textureName) != _textures.end())
 		THROW(Exception,
 			"Cannot override existing texture '%s'",
@@ -91,6 +134,7 @@ void Renderer::addUTF8TextTexture(
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
 
+	// Attempt text rendering & storage into the Textures map
 	_textures.emplace(
 		make_pair(textureName,
 			Texture::fromUTF8Text(
@@ -102,10 +146,17 @@ void Renderer::addUTF8TextTexture(
 				color)));
 }
 
+/*!
+ * @param	textureName		Name to give to the newly created Texture in the
+ *							Renderer's internal storage
+ * @param	path			Path to image file
+ * @throws	Exception		Invalid input parameters or SDL call error
+ */
 void Renderer::addImageTexture(
 	std::string const & textureName,
 	std::string const & path)
 {
+	// Check input parameters
 	if (_textures.find(textureName) != _textures.end())
 		THROW(Exception,
 			"Cannot override existing texture '%s'",
@@ -113,43 +164,75 @@ void Renderer::addImageTexture(
 	if (path.empty())
 		THROW(Exception, "Received empty 'path'");
 
+	// Instantiate Surface from image & convert into Texture (may throw)
 	Surface image(Surface::fromImage(path));
 
+	// Store Texture into internal map
 	_textures.emplace(
 		make_pair(textureName,
 			Texture::fromSurface(_renderer.get(), image)));
 }
 
+/*!
+ * @param	name	Name of the Texture to query
+ * @returns			The appropriate Texture for the input name, nullptr if not
+ *					found
+ */
 Texture * Renderer::getTexture(std::string const & name)
 {
-	if(_textures.find(name) == _textures.end())
+	// Lookup
+	if(_textures.find(name) == _textures.end()) /* Miss */
 		return nullptr;
-	else
+	else /* Hit */
 		return (&_textures.at(name));
 }
 
-void Renderer::printText(std::string const & text,
-		std::string const & fontName,
-		int const size,
-		SDL_Color const & color,
-		SDL_Rect const & destination)
+/*!
+ * @param	text		Text to print (Latin1)
+ * @param	fontName	Name of the font to use
+ * @param	size		Text size
+ * @param	color		Text color
+ * @param	destination	Destination rectangle (will crop)
+ * @throws	Exception	Invalid input parameters or SDL/TTF call error
+ *
+ * @todo	Unify API / handle UTF-8 BMF
+ */
+void Renderer::printText(
+	std::string const & text,
+	std::string const & fontName,
+	int const size,
+	SDL_Color const & color,
+	SDL_Rect const & destination)
 {
+	// Check input parameters
 	if (fontName.empty())
 		THROW(Exception, "Received empty 'fontName'");
 	if (size <= 0)
 		THROW(Exception, "Received 'size' <= 0");
 
+	// Try retrieving BitmapFont
 	BitmapFont * font(_bitmapFontManager->getFont(fontName, size));
-	if (font)
+	if (font) /* Hit */
+		// Render
 		font->renderText(text, color, destination);
-	else
+	else /* Miss */
 		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"Cannot print dynamic text : missing font '%s' size '%d'",
 			fontName.c_str(),
 			size);
 }
 
-void Renderer::printDebugText(std::string const & fontName,
+/*!
+ * @param	fontName		Name of the font to use
+ * @param	size			Debug text size
+ * @param	xDest			X destination (top left pixel)
+ * @param	yDest			Y destination (top left pixel)
+ * @throws	Exception		Invalid input parameters or SDL/TTF call error
+ *
+ * @todo	Remove, at some point
+ */
+void Renderer::printDebugText(
+	std::string const & fontName,
 	int const size,
 	int const xDest,
 	int const yDest)
@@ -164,6 +247,12 @@ void Renderer::printDebugText(std::string const & fontName,
 			size);
 }
 
+/*!
+ * @param	red		Red component
+ * @param	green	Green component
+ * @param	blue	Blue component
+ * @param	blue	Alpha component
+ */
 void Renderer::setDrawColor(
 	Uint8 const red,
 	Uint8 const green,
@@ -176,6 +265,9 @@ void Renderer::setDrawColor(
 			SDL_GetError());
 }
 
+/*!
+ * @param	color	SDL_Color to use
+ */
 void Renderer::setDrawColor(SDL_Color const & color)
 {
 	if (SDL_SetRenderDrawColor(_renderer.get(),
@@ -272,11 +364,21 @@ void Renderer::drawLine(
 			SDL_GetError());
 }
 
+/*!
+ * @param	textureName		Name of the Texture to copy on rendering space
+ * @param	clipName		Name of the clipping rectangle to use ("" = entire
+ *							Texture)
+ * @param	destination		Destination rectangle for the rendering
+ * @throws	Exception		Invalid input parameters or SDL call error
+ *
+ * @todo	Add 1:1 version
+ */
 void Renderer::copy(
 	std::string const & textureName,
 	std::string const & clipName,
 	SDL_Rect const & destination)
 {
+	// Texture lookup
 	auto textureIterator = _textures.find(textureName);
 	if (textureIterator == _textures.end())
 	{
@@ -286,6 +388,7 @@ void Renderer::copy(
 		return;
 	}
 
+	// Clip lookup
 	SDL_Rect * clip = textureIterator->second.getClip(clipName);
 	if (!clip)
 	{
@@ -298,6 +401,7 @@ void Renderer::copy(
 
 	SDL_Texture * sdlTexture = textureIterator->second.getSDLTexture();
 
+	// Rendering attempt
 	if (SDL_RenderCopy(_renderer.get(), sdlTexture, clip, &destination))
 		ERROR(SDL_LOG_CATEGORY_ERROR,
 			"Cannot copy texture '%s' with clip '%s' : SDL error '%s'",
@@ -306,6 +410,18 @@ void Renderer::copy(
 			SDL_GetError());
 }
 
+/*!
+ * @param	textureName		Name of the Texture to copy on rendering space
+ * @param	clipName		Name of the clipping rectangle to use ("" = entire
+ *							Texture)
+ * @param	destination		Destination rectangle for the rendering
+ * @param	angle			Angle of rotation in degrees (0 = no rotation)
+ * @param	center			Center of rotation
+ * @param	flip			SDL flip flag
+ * @throws	Exception		Invalid input parameters or SDL call error
+ *
+ * @todo	Add 1:1 version
+ */
 void Renderer::copyEx(
 	std::string const & textureName,
 	std::string const & clipName,
@@ -314,6 +430,7 @@ void Renderer::copyEx(
 	SDL_Point const & center,
 	SDL_RendererFlip const & flip)
 {
+	// Texture lookup
 	auto textureIterator = _textures.find(textureName);
 	if (textureIterator == _textures.end())
 	{
@@ -323,6 +440,7 @@ void Renderer::copyEx(
 		return;
 	}
 
+	// Clip lookup
 	SDL_Rect * clip = textureIterator->second.getClip(clipName);
 	if (!clip)
 	{
@@ -335,6 +453,7 @@ void Renderer::copyEx(
 
 	SDL_Texture * sdlTexture = textureIterator->second.getSDLTexture();
 
+	// Rendering attempt
 	if (SDL_RenderCopyEx(_renderer.get(),
 		sdlTexture, clip, &destination,
 		angle, &center, flip))
@@ -345,6 +464,9 @@ void Renderer::copyEx(
 			SDL_GetError());
 }
 
+/*!
+ * @todo	Handle errors
+ */
 void Renderer::present(void)
 {
 	SDL_RenderPresent(_renderer.get());
